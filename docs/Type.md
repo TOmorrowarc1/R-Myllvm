@@ -31,6 +31,7 @@ llvm::Type (抽象基类)
 
 **接口**：
 - `auto isPointerTy() const -> bool` - 判断是否为指针类型
+- `auto isAggragateTy() const -> bool` - 判断是否为聚合类型（结构体或数组）
 - `auto isEqual(const Type* other_type) const -> bool` - 判断两个类型是否相等
 - `auto print() const -> std::string` - 打印类型信息
 
