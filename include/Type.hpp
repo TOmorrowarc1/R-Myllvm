@@ -25,6 +25,9 @@ public:
   // 判断是否为指针类型
   virtual auto isPointerTy() const -> bool = 0;
 
+  // 判断是否为聚合类型（结构体或数组）
+  virtual auto isAggregateTy() const -> bool = 0;
+
   // 判断两个类型是否相等
   virtual auto isEqual(const Type *other_type) const -> bool = 0;
 
@@ -38,6 +41,8 @@ public:
   virtual ~IntegerType() = default;
 
   auto isPointerTy() const -> bool override { return false; }
+  
+  auto isAggregateTy() const -> bool override { return false; }
 };
 
 // 32位整数类型
@@ -93,6 +98,8 @@ public:
 
   auto isPointerTy() const -> bool override { return false; }
 
+  auto isAggregateTy() const -> bool override { return true; }
+
   auto isEqual(const Type *other_type) const -> bool override;
 
   auto print() const -> std::string override;
@@ -112,6 +119,8 @@ public:
   auto getNumElements() const -> size_t;
 
   auto isPointerTy() const -> bool override { return false; }
+
+  auto isAggregateTy() const -> bool override { return true; }
 
   auto isEqual(const Type *other_type) const -> bool override;
 
@@ -143,6 +152,8 @@ public:
 
   auto isPointerTy() const -> bool override { return false; }
 
+  auto isAggregateTy() const -> bool override { return false; }
+
   auto isEqual(const Type *other_type) const -> bool override;
 
   auto print() const -> std::string override;
@@ -154,6 +165,8 @@ public:
   PointerType() = default;
 
   auto isPointerTy() const -> bool override { return true; }
+
+  auto isAggregateTy() const -> bool override { return false; }
 
   auto isEqual(const Type *other_type) const -> bool override;
 
