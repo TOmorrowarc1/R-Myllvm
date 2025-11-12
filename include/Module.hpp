@@ -9,9 +9,10 @@ namespace llvm {
 // 前向声明
 class LLVMContext;
 class Function;
-class FunctionType;
 class GlobalVariable;
 class Constant;
+class Type;
+class FunctionType;
 
 // Module类，指代编译单元，最大的LLVM IR代码容器
 class Module {
@@ -34,7 +35,8 @@ public:
                    std::unique_ptr<Function> &&function);
 
   // 获取或创建函数对象
-  auto getOrCreateFunction(const std::string &name, FunctionType *func_type) -> Function *;
+  auto getOrCreateFunction(const std::string &name, FunctionType *func_type)
+      -> Function *;
 
   // 根据名称获取全局变量对象指针，若不存在则返回nullptr
   auto getGlobalVariable(const std::string &name) -> GlobalVariable *;
@@ -44,7 +46,9 @@ public:
                          std::unique_ptr<GlobalVariable> &&global_var);
 
   // 获取或创建全局变量对象
-  auto getOrCreateGlobalVariable(const std::string &name, Type *var_type, bool is_constant, Constant *init_value) -> GlobalVariable *;
+  auto getOrCreateGlobalVariable(const std::string &name, Type *var_type,
+                                 bool is_constant, Constant *init_value)
+      -> GlobalVariable *;
 
   // 获取所属上下文指针
   auto getContext() -> LLVMContext *;

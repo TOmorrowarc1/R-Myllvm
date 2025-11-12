@@ -19,7 +19,19 @@ class FunctionType;
 class PointerType;
 class IntegerType;
 class ConstantInt;
-class FuncComparator;
+
+class FuncComparator {
+public:
+  auto operator()(const std::pair<Type *, llvm::ArrayRef<Type *>> &lhs,
+                  const std::pair<Type *, llvm::ArrayRef<Type *>> &rhs) const
+      -> bool {
+    if (lhs.first != rhs.first) {
+      return lhs.first < rhs.first;
+    }
+    llvm::ArrayRefComparator<Type *> arrayRefComp;
+    return arrayRefComp(lhs.second, rhs.second);
+  }
+};
 
 // LLVM上下文类，用于管理LLVM IR中类型的创建和销毁
 class LLVMContext {
@@ -75,18 +87,4 @@ private:
   std::map<std::pair<IntegerType *, int64_t>, std::unique_ptr<ConstantInt>>
       int_constants_;
 };
-
-class FuncComparator {
-public:
-  auto operator()(const std::pair<Type *, llvm::ArrayRef<Type *>> &lhs,
-                  const std::pair<Type *, llvm::ArrayRef<Type *>> &rhs) const
-      -> bool {
-    if (lhs.first != rhs.first) {
-      return lhs.first < rhs.first;
-    }
-    llvm::ArrayRefComparator<Type *> arrayRefComp;
-    return arrayRefComp(lhs.second, rhs.second);
-  }
-};
-
 } // namespace llvm

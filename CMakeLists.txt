@@ -22,6 +22,7 @@ set(SOURCES
     src/Value.cpp
     src/Context.cpp
     src/Module.cpp
+    src/IRBuilder.cpp
 )
 
 # 创建静态库
