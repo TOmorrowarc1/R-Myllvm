@@ -2,8 +2,8 @@
 #include <cassert>
 #include <sstream>
 #include <stdexcept>
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 
 namespace llvm {
 
@@ -54,7 +54,7 @@ void Function::addBasicBlock(std::unique_ptr<BasicBlock> &&bb) {
 
 auto Function::createBasicBlock(const std::string &name) -> BasicBlock * {
   static std::unordered_map<std::string, int> name_counter;
-  
+
   std::string actual_name = name;
   if (name_counter.find(name) != name_counter.end()) {
     name_counter[name]++;
@@ -62,7 +62,7 @@ auto Function::createBasicBlock(const std::string &name) -> BasicBlock * {
   } else {
     name_counter[name] = 0;
   }
-  
+
   auto bb = std::make_unique<BasicBlock>(actual_name, this);
   auto bb_ptr = bb.get();
   basic_blocks_.push_back(std::move(bb));
@@ -430,15 +430,19 @@ auto CallInst::getType() const -> Type * {
 auto CallInst::getName() const -> std::string { return name_; }
 
 auto CallInst::print() const -> std::string {
-  std::string result;
-  if (!name_.empty()) {
-    result += "%" + name_ + " = ";
-  }
-
   FunctionType *func_type = dynamic_cast<FunctionType *>(function_->getType());
   assert(func_type && "Function must have a FunctionType");
-  result += "call " + func_type->getReturnType()->print() + " @" +
-            function_->getName() + "(";
+
+  std::string result;
+  std::string type_name;
+
+  if (!name_.empty() && func_type->getReturnType()) {
+    result += "%" + name_ + " = ";
+    type_name = func_type->getReturnType()->print();
+  } else {
+    type_name = "void";
+  }
+  result += "call " + type_name + " @" + function_->getName() + "(";
 
   for (size_t i = 0; i < args_.size(); ++i) {
     result += args_[i]->getType()->print() + " " + args_[i]->getName();
