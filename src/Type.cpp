@@ -4,6 +4,11 @@
 
 namespace llvm {
 
+// VoidType 实现
+auto VoidType::isEqual(const Type *other_type) const -> bool {
+  return dynamic_cast<const VoidType *>(other_type) != nullptr;
+}
+
 // Int32Type 实现
 auto Int32Type::isEqual(const Type *other_type) const -> bool {
   return dynamic_cast<const Int32Type *>(other_type) != nullptr;
@@ -20,7 +25,7 @@ auto Int1Type::isEqual(const Type *other_type) const -> bool {
 }
 
 // StructType 实现
-StructType::StructType(const std::string &name) : name_(name) {}
+StructType::StructType(const std::string &name) : name_("%struct." + name) {}
 
 auto StructType::getName() const -> const std::string & { return name_; }
 
@@ -28,7 +33,9 @@ void StructType::setBody(const std::vector<Type *> &elements) {
   this->elements_ = elements;
 }
 
-auto StructType::getBody() const -> const std::vector<Type *> & { return elements_; }
+auto StructType::getBody() const -> const std::vector<Type *> & {
+  return elements_;
+}
 
 auto StructType::getElementType(unsigned i) const -> Type * {
   assert(i < elements_.size() && "Index out of bounds");
@@ -62,8 +69,10 @@ auto StructType::isEqual(const Type *other_type) const -> bool {
   return true;
 }
 
-auto StructType::print() const -> std::string {
-  std::string result = "{ " + name_ + ": ";
+auto StructType::print() const -> std::string { return name_; }
+
+auto StructType::printDef() const -> std::string {
+  std::string result = name_ + " = type { ";
   for (size_t i = 0; i < elements_.size(); ++i) {
     result += elements_[i]->print();
     if (i < elements_.size() - 1) {

@@ -8,6 +8,7 @@ namespace llvm {
 
 // 前向声明
 class Type;
+class VoidType;
 class Int32Type;
 class Int8Type;
 class Int1Type;
@@ -32,6 +33,20 @@ public:
 
   // 打印类型信息
   virtual auto print() const -> std::string = 0;
+};
+
+// Void类型
+class VoidType : public Type {
+public:
+  VoidType() = default;
+
+  auto isPointerTy() const -> bool override { return false; }
+  
+  auto isAggregateTy() const -> bool override { return false; }
+
+  auto isEqual(const Type *other_type) const -> bool override;
+
+  auto print() const -> std::string override { return "void"; }
 };
 
 // 整数类型基类
@@ -102,6 +117,8 @@ public:
   auto isEqual(const Type *other_type) const -> bool override;
 
   auto print() const -> std::string override;
+
+  auto printDef() const -> std::string;
 };
 
 // 数组类型

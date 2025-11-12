@@ -8,6 +8,8 @@ Type类继承结构如下：
 ```
 llvm::Type (抽象基类)
   │
+  ├── llvm::VoidType (空类型)
+  │
   ├── llvm::Int32Type (32位整数类型)
   ├── llvm::Int8Type  (8位整数类型)
   ├── llvm::Int1Type  (1位整数类型)
@@ -35,32 +37,43 @@ llvm::Type (抽象基类)
 - `auto isEqual(const Type* other_type) const -> bool` - 判断两个类型是否相等
 - `auto print() const -> std::string` - 打印类型信息
 
-### 1. 整数类型
+### 1. Void 类型 `llvm::VoidType`
+Void 类型表示无返回值的类型，通常用于函数返回类型。
+
+**成员**：无成员。
+**接口**：
+- `VoidType()` - 构造函数
+- `auto isPointerTy() const -> bool` - 判断是否为指针类型
+- `auto isAggregateTy() const -> bool` - 判断是否为聚合类型
+- `auto isEqual(const Type* other_type) const -> bool` - 判断两个类型是否相等
+- `auto print() const -> std::string` - 打印类型信息，返回 "void"
+
+### 2. 整数类型
 
 整数类型包括 `llvm::Int32Type`、`llvm::Int8Type` 和 `llvm::Int1Type`，它们分别表示32位、8位和1位整数类型。虽然它们继承自同一个基类，但它们是不同的类型。
 
-#### 1.1 `llvm::Int32Type`
+#### 2.1 `llvm::Int32Type`
 
 **成员**：无特定成员。
 
 **接口**：
 - `Int32Type()` - 构造函数
 
-#### 1.2 `llvm::Int8Type`
+#### 2.2 `llvm::Int8Type`
 
 **成员**：无特定成员。
 
 **接口**：
 - `Int8Type()` - 构造函数
 
-#### 1.3 `llvm::Int1Type`
+#### 2.3 `llvm::Int1Type`
 
 **成员**：无特定成员。
 
 **接口**：
 - `Int1Type()` - 构造函数
 
-### 2. 结构体类型 `llvm::StructType`
+### 3. 结构体类型 `llvm::StructType`
 
 结构体类型用于表示由多个字段组成的复合类型。
 
@@ -76,8 +89,9 @@ llvm::Type (抽象基类)
 - `auto getElementType(unsigned i) const -> Type*` - 获取第i个字段类型
 - `auto getNumElements() const -> size_t` - 获取字段数量
 - `void setElementType(size_t i, Type* type)` - 更改第i个字段类型
+- `auto printDef() const -> std::string` - 打印结构体定义信息
 
-### 3. 数组类型 `llvm::ArrayType`
+### 4. 数组类型 `llvm::ArrayType`
 
 数组类型用于表示固定大小的元素数组。
 
@@ -90,7 +104,7 @@ llvm::Type (抽象基类)
 - `auto getElementType() const -> Type*` - 获取元素类型
 - `auto getNumElements() const -> size_t` - 获取数组大小
 
-### 4. 函数类型 `llvm::FunctionType`
+### 5. 函数类型 `llvm::FunctionType`
 
 函数类型用于表示函数的签名，包括返回值类型和参数类型列表。
 
@@ -108,7 +122,7 @@ llvm::Type (抽象基类)
 - `void setReturnType(Type* type)` - 修改返回值类型
 - `void addParamType(Type* type)` - 添加参数类型
 
-### 5. 指针类型 `llvm::PointerType`
+### 6. 指针类型 `llvm::PointerType`
 
 指针类型采用不透明指针设计，不包含指向的具体类型信息。
 
