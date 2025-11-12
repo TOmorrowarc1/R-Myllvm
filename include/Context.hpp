@@ -17,6 +17,8 @@ class StructType;
 class ArrayType;
 class FunctionType;
 class PointerType;
+class IntegerType;
+class ConstantInt;
 class FuncComparator;
 
 // LLVM上下文类，用于管理LLVM IR中类型的创建和销毁
@@ -48,6 +50,9 @@ public:
   // 获取指针类型对象
   auto getPointerType() -> PointerType *;
 
+  // 获取或创建整数常量对象
+  auto getIntConstant(IntegerType* type, int64_t value) -> ConstantInt*;
+
 private:
   // 存储已创建的整数类对象，避免重复创建，通过位数索引
   std::map<int32_t, std::unique_ptr<Type>> integer_types_;
@@ -65,6 +70,9 @@ private:
   std::map<std::pair<Type *, ArrayRef<Type *>>, std::unique_ptr<FunctionType>,
            FuncComparator>
       function_types_;
+
+  // 存储已创建的整数常量对象，避免重复创建，通过类型与整数值索引
+  std::map<std::pair<IntegerType*, int64_t>, std::unique_ptr<ConstantInt>> int_constants_;
 };
 
 class FuncComparator {

@@ -1,5 +1,6 @@
 #include "Context.hpp"
 #include "Type.hpp"
+#include "Value.hpp"
 
 namespace llvm {
 
@@ -86,6 +87,19 @@ auto LLVMContext::getPointerType() -> PointerType * {
     pointer_type_ = std::make_unique<PointerType>();
   }
   return pointer_type_.get();
+}
+
+auto LLVMContext::getIntConstant(IntegerType* type, int64_t value) -> ConstantInt* {
+  auto key = std::make_pair(type, value);
+  auto it = int_constants_.find(key);
+  if (it != int_constants_.end()) {
+    return it->second.get();
+  }
+
+  auto constant = std::make_unique<ConstantInt>(type, value);
+  auto* result = constant.get();
+  int_constants_[key] = std::move(constant);
+  return result;
 }
 
 } // namespace llvm

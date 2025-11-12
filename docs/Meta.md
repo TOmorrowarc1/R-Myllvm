@@ -2,7 +2,7 @@
 以下三个类专注于对 Type 与 Value 类的管理与生成，构成 LLVM IR 生成器的核心工作组件。
 
 ### 1. LLVMContext
-该类型代指 LLVM 上下文，用于管理 LLVM IR 中类型的创建和销毁（理论上常量也由Context管理，但本项目未使用此功能）。
+该类型代指 LLVM 上下文，用于管理 LLVM IR 中类型与常量的创建和销毁。（本项目只使用整数常量）
 
 依赖：
 - .hpp: class Type;
@@ -14,6 +14,7 @@
 - `std::map<std::pair<Type*, int32_t>, std::unique_ptr<Type>> array_types_` - 存储已创建的数组类对象，避免重复创建，通过元素类型和长度索引。
 - `std::unique_ptr<PointerType> pointer_type_` - 指针类型单例对象。
 - `std::map<std::pair<Type*, llvm::ArrayRef<Type*>>, std::unique_ptr<FunctionType>> function_types_` - 存储已创建的函数类对象，避免重复创建，通过返回类型和参数类型列表索引。（注意：需要自定义llvm::ArrayRef的比较函数，使用仿函数与字典序比较）
+- `std::map<std::pair<Integertype*, int64_t>, std::unique_ptr<ConstantInt>> int_constants_` - 存储已创建的整数常量对象，避免重复创建，通过类型与整数值索引。
   
 接口：
 - 构造函数：空的。
@@ -24,6 +25,7 @@
 - `auto getArrayType(Type* element_type, int32_t length)-> ArrayType*` - 获取或创建数组类型对象。
 - `auto getFunctionType(Type* return_type, const vector<Type*>& param_types) -> FunctionType*` - 获取或创建函数类型对象。
 - `auto getPointerType() -> PointerType*` - 获取指针类型对象。
+- `auto getIntConstant(Integertype* type, int64_t value) -> ConstantInt*` - 获取或创建整数常量对象。
 
 
 ### 2. Module
