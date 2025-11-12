@@ -118,7 +118,9 @@ TEST(ValueTest, BinaryOperatorTypeCheckTest) {
     PointerType ptr_type;
     ConstantInt int32_val(&i32_type, 10);
     ConstantInt int8_val(&i8_type, 20);
-    ConstantInt ptr_val(&ptr_type, 1000);
+    
+    // 使用AllocaInst创建指针值而不是使用ConstantInt
+    AllocaInst ptr_val("ptr", &i32_type);
     
     // 正常情况：两个相同类型的整数操作数
     EXPECT_NO_THROW(BinaryOperator("result1", &i32_type, &int32_val, &int32_val, "add"));
@@ -169,7 +171,9 @@ TEST(ValueTest, UnaryOperatorTypeCheckTest) {
     PointerType ptr_type;
     ConstantInt int32_val(&i32_type, 10);
     ConstantInt int8_val(&i8_type, 20);
-    ConstantInt ptr_val(&ptr_type, 1000);
+    
+    // 使用AllocaInst创建指针值而不是使用ConstantInt
+    AllocaInst ptr_val("ptr", &i32_type);
     
     // 正常情况：整数类型的操作数
     EXPECT_NO_THROW(UnaryOperator("result1", "neg", &i32_type, &int32_val));

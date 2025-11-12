@@ -349,11 +349,11 @@ public:
 // 整数类型常量
 class ConstantInt : public Constant {
 private:
-  Type* type_;    // 整数类型，可能为32或8或1位
+  IntegerType* type_;    // 整数类型，可能为32或8或1位
   int64_t value_; // 整数值
 
 public:
-  ConstantInt(Type* type, int64_t value);
+  ConstantInt(IntegerType* type, int64_t value);
   
   auto getType() const -> Type* override;
   auto getValue() const -> int64_t;

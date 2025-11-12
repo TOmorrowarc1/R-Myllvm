@@ -304,12 +304,12 @@ llvm::Value (抽象基类)
 
 #### 5.1 整数类型常量 `llvm::ConstantInt`
 成员：
-- `Type* type_` - 整数类型，可能为32或8或1位。
+- `IntegerType* type_` - 整数类型，可能为32或8或1位。
 - `int64_t value_` - 整数值。
   
 接口：
-- `ConstantInt(Type* type, int64_t value)` - 构造函数，此处存在数值溢出的问题，但是我们选择信任使用者（我自己）。
-- `auto getType() const -> Type*` - 获取整数类型
+- `ConstantInt(IntergerType* type, int64_t value)` - 构造函数，此处存在数值溢出的问题，但是我们选择信任使用者（我自己）。
+- `auto getType() const -> IntegerType*` - 获取整数类型
 - `auto getValue() const -> int64_t` - 获取整数值
 - `auto getName() const -> std::string` - 获取整数常量，实现为输出整数对应字符串，print亦然。
 - `auto print() const -> std::string` - 打印整数常量信息。
