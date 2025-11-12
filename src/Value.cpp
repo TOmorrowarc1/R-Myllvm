@@ -2,6 +2,8 @@
 #include <cassert>
 #include <sstream>
 #include <stdexcept>
+#include <unordered_map>
+#include <string>
 
 namespace llvm {
 
@@ -51,7 +53,17 @@ void Function::addBasicBlock(std::unique_ptr<BasicBlock> &&bb) {
 }
 
 auto Function::createBasicBlock(const std::string &name) -> BasicBlock * {
-  auto bb = std::make_unique<BasicBlock>(name, this);
+  static std::unordered_map<std::string, int> name_counter;
+  
+  std::string actual_name = name;
+  if (name_counter.find(name) != name_counter.end()) {
+    name_counter[name]++;
+    actual_name = name + "." + std::to_string(name_counter[name]);
+  } else {
+    name_counter[name] = 0;
+  }
+  
+  auto bb = std::make_unique<BasicBlock>(actual_name, this);
   auto bb_ptr = bb.get();
   basic_blocks_.push_back(std::move(bb));
   return bb_ptr;
