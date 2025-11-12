@@ -211,10 +211,10 @@ auto BinaryOperator::getOp() const -> std::string { return op_; }
 
 auto BinaryOperator::getType() const -> Type * { return type_; }
 
-auto BinaryOperator::getName() const -> std::string { return name_; }
+auto BinaryOperator::getName() const -> std::string { return "%" + name_; }
 
 auto BinaryOperator::print() const -> std::string {
-  return "%" + name_ + " = " + op_ + " " + type_->print() + " " +
+  return getName() + " = " + op_ + " " + type_->print() + " " +
          lhs_->getName() + ", " + rhs_->getName();
 }
 
@@ -240,10 +240,10 @@ auto UnaryOperator::getOp() const -> std::string { return op_; }
 
 auto UnaryOperator::getType() const -> Type * { return type_; }
 
-auto UnaryOperator::getName() const -> std::string { return name_; }
+auto UnaryOperator::getName() const -> std::string { return "%" + name_; }
 
 auto UnaryOperator::print() const -> std::string {
-  return "%" + name_ + " = " + op_ + " " + type_->print() + " " +
+  return getName() + " = " + op_ + " " + type_->print() + " " +
          operand_->getName();
 }
 
@@ -261,10 +261,10 @@ auto LoadInst::getPtr() const -> Value * { return ptr_; }
 
 auto LoadInst::getType() const -> Type * { return type_; }
 
-auto LoadInst::getName() const -> std::string { return name_; }
+auto LoadInst::getName() const -> std::string { return "%" + name_; }
 
 auto LoadInst::print() const -> std::string {
-  return "%" + name_ + " = load " + type_->print() + ", ptr " + ptr_->getName();
+  return getName() + " = load " + type_->print() + ", ptr " + ptr_->getName();
 }
 
 // StoreInst 类实现
@@ -307,10 +307,10 @@ auto AllocaInst::getType() const -> Type * {
   return &ptr_type;
 }
 
-auto AllocaInst::getName() const -> std::string { return name_; }
+auto AllocaInst::getName() const -> std::string { return "%" + name_; }
 
 auto AllocaInst::print() const -> std::string {
-  return "%" + name_ + " = alloca " + type_->print();
+  return getName() + " = alloca " + type_->print();
 }
 
 // ICmpInst 类实现
@@ -344,10 +344,10 @@ auto ICmpInst::getPredicate() const -> std::string { return predicate_; }
 
 auto ICmpInst::getType() const -> Type * { return type_; }
 
-auto ICmpInst::getName() const -> std::string { return name_; }
+auto ICmpInst::getName() const -> std::string { return "%" + name_; }
 
 auto ICmpInst::print() const -> std::string {
-  return "%" + name_ + " = icmp " + predicate_ + " " +
+  return getName() + " = icmp " + predicate_ + " " +
          lhs_->getType()->print() + " " + lhs_->getName() + ", " +
          rhs_->getName();
 }
@@ -444,10 +444,10 @@ auto PHINode::getType() const -> Type * {
   return type_;
 }
 
-auto PHINode::getName() const -> std::string { return name_; }
+auto PHINode::getName() const -> std::string { return "%" + name_; }
 
 auto PHINode::print() const -> std::string {
-  std::string result = "%" + name_ + " = phi " + getType()->print();
+  std::string result = getName() + " = phi " + getType()->print();
 
   for (size_t i = 0; i < incomings_.size(); ++i) {
     result += " [ " + incomings_[i].first->getName() + ", %" +
@@ -498,7 +498,7 @@ auto CallInst::getType() const -> Type * {
   return func_type->getReturnType();
 }
 
-auto CallInst::getName() const -> std::string { return name_; }
+auto CallInst::getName() const -> std::string { return "%" + name_; }
 
 auto CallInst::print() const -> std::string {
   FunctionType *func_type = dynamic_cast<FunctionType *>(function_->getType());
@@ -508,7 +508,7 @@ auto CallInst::print() const -> std::string {
   std::string type_name;
 
   if (!name_.empty() && func_type->getReturnType()) {
-    result += "%" + name_ + " = ";
+    result += getName() + " = ";
     type_name = func_type->getReturnType()->print();
   } else {
     type_name = "void";
@@ -559,10 +559,10 @@ auto GetElementPtrInst::getIndices() const -> const std::vector<Value *> & {
 
 auto GetElementPtrInst::getType() const -> Type * { return type_; }
 
-auto GetElementPtrInst::getName() const -> std::string { return name_; }
+auto GetElementPtrInst::getName() const -> std::string { return "%" + name_; }
 
 auto GetElementPtrInst::print() const -> std::string {
-  std::string result = "%" + name_ + " = getelementptr " + base_type_->print() +
+  std::string result = getName() + " = getelementptr " + base_type_->print() +
                        ", ptr " + ptr_->getName();
 
   for (auto index : indices_) {
