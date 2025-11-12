@@ -1,5 +1,4 @@
-#ifndef LLVM_CONTEXT_HPP
-#define LLVM_CONTEXT_HPP
+#pragma once
 
 #include <map>
 #include <memory>
@@ -89,5 +88,3 @@ public:
 };
 
 } // namespace llvm
-
-#endif // LLVM_CONTEXT_HPP

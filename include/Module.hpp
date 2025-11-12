@@ -1,5 +1,4 @@
-#ifndef LLVM_MODULE_HPP
-#define LLVM_MODULE_HPP
+#pragma once
 
 #include <map>
 #include <memory>
@@ -55,5 +54,3 @@ public:
 };
 
 } // namespace llvm
-
-#endif // LLVM_MODULE_HPP

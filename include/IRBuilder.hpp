@@ -1,5 +1,4 @@
-#ifndef LLVM_IRBUILDER_HPP
-#define LLVM_IRBUILDER_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -82,5 +81,3 @@ public:
 };
 
 } // namespace llvm
-
-#endif // LLVM_IRBUILDER_HPP

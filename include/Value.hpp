@@ -1,5 +1,4 @@
-#ifndef LLVM_VALUE_HPP
-#define LLVM_VALUE_HPP
+#pragma once
 
 #include <memory>
 #include <string>
@@ -388,5 +387,3 @@ public:
 };
 
 } // namespace llvm
-
-#endif // LLVM_VALUE_HPP

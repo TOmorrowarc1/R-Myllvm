@@ -1,5 +1,4 @@
-#ifndef LLVM_TYPE_HPP
-#define LLVM_TYPE_HPP
+#pragma once
 
 #include <iostream>
 #include <string>
@@ -174,5 +173,3 @@ public:
 };
 
 } // namespace llvm
-
-#endif // LLVM_TYPE_HPP
