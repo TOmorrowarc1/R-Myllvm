@@ -90,6 +90,7 @@ public:
   Function(const std::string& name, FunctionType* func_type, Module* parent);
   
   void addBasicBlock(std::unique_ptr<BasicBlock>&& bb);
+  auto createBasicBlock(const std::string& name) -> BasicBlock*;
   const std::vector<BasicBlock*> getBasicBlocks() const;
   auto getBBbyIndex(int64_t index) const -> BasicBlock*;
   

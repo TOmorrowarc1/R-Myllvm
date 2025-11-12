@@ -85,6 +85,7 @@ llvm::Value (抽象基类)
 接口：
 - `Function(const std::string& name, FunctionType* func_type, Module* parent)` - 构造函数
 - `void addBasicBlock(std::unique_ptr<BasicBlock>&& bb)` - 向函数添加基本块
+- `auto createBasicBlock(const std::string& name) -> BasicBlock*` - 创建并添加基本块
 - `const std::vector<BasicBlock*>& getBasicBlocks() const` - 获取函数体内的基本块列表
 - `auto getBBbyIndex(int64_t index) const -> BasicBlock*` - 根据索引获取基本块
 - `void addArgument(std::unique_ptr<Argument>&& arg)` - 向函数添加参数

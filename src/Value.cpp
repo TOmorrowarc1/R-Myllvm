@@ -50,6 +50,13 @@ void Function::addBasicBlock(std::unique_ptr<BasicBlock> &&bb) {
   basic_blocks_.push_back(std::move(bb));
 }
 
+auto Function::createBasicBlock(const std::string &name) -> BasicBlock * {
+  auto bb = std::make_unique<BasicBlock>(name, this);
+  auto bb_ptr = bb.get();
+  basic_blocks_.push_back(std::move(bb));
+  return bb_ptr;
+}
+
 const std::vector<BasicBlock *> Function::getBasicBlocks() const {
   std::vector<BasicBlock *> result;
   for (const auto &bb : basic_blocks_) {
