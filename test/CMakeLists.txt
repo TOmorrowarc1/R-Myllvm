@@ -1,6 +1,10 @@
 # 测试源文件
 set(TEST_SOURCES
     Type_test.cpp
+    Context_test.cpp
+    Module_test.cpp
+    IRBuilder_test.cpp
+    ArrayRef_test.cpp
     Value_test.cpp
 )
 
