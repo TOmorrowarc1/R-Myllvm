@@ -71,7 +71,7 @@ TEST(TypeTest, StructTypeTest) {
     
     EXPECT_FALSE(struct_type.isPointerTy());
     EXPECT_TRUE(struct_type.isAggregateTy());
-    EXPECT_EQ(struct_type.getName(), "MyStruct");
+    EXPECT_EQ(struct_type.getName(), "%struct.MyStruct");
     EXPECT_EQ(struct_type.getNumElements(), 0);
     
     // 设置结构体字段
@@ -209,7 +209,7 @@ TEST(TypeTest, StructWithArrayFieldTest) {
     // 验证结构体属性
     EXPECT_FALSE(struct_with_array.isPointerTy());
     EXPECT_TRUE(struct_with_array.isAggregateTy());
-    EXPECT_EQ(struct_with_array.getName(), "StructWithArray");
+    EXPECT_EQ(struct_with_array.getName(), "%struct.StructWithArray");
     EXPECT_EQ(struct_with_array.getNumElements(), 2);
     EXPECT_EQ(struct_with_array.getElementType(0), &i8_type);
     EXPECT_EQ(struct_with_array.getElementType(1), &array_type);
@@ -261,7 +261,7 @@ TEST(TypeTest, StructWithNestedStructTest) {
     // 验证外部结构体属性
     EXPECT_FALSE(outer_struct.isPointerTy());
     EXPECT_TRUE(outer_struct.isAggregateTy());
-    EXPECT_EQ(outer_struct.getName(), "OuterStruct");
+    EXPECT_EQ(outer_struct.getName(), "%struct.OuterStruct");
     EXPECT_EQ(outer_struct.getNumElements(), 2);
     EXPECT_EQ(outer_struct.getElementType(0), &i1_type);
     EXPECT_EQ(outer_struct.getElementType(1), &inner_struct);
@@ -341,7 +341,7 @@ TEST(TypeTest, ArrayOfStructsTest) {
     // 验证容器结构体属性
     EXPECT_FALSE(container_struct.isPointerTy());
     EXPECT_TRUE(container_struct.isAggregateTy());
-    EXPECT_EQ(container_struct.getName(), "ContainerStruct");
+    EXPECT_EQ(container_struct.getName(), "%struct.ContainerStruct");
     EXPECT_EQ(container_struct.getNumElements(), 2);
     EXPECT_EQ(container_struct.getElementType(0), &i1_type);
     EXPECT_EQ(container_struct.getElementType(1), &struct_array);
@@ -356,6 +356,156 @@ TEST(TypeTest, ArrayOfStructsTest) {
     EXPECT_TRUE(container_print_def_result.find("i1") != std::string::npos);
     EXPECT_TRUE(container_print_def_result.find("[%struct.ElementStruct x 3]") != std::string::npos);
     EXPECT_TRUE(container_print_def_result.find("}") != std::string::npos);
+}
+
+// 测试函数类型的复合测试：参数中存在指针
+TEST(TypeTest, FunctionTypeWithPointerParamsTest) {
+    // 创建一个包含指针参数的函数类型
+    VoidType void_type;
+    PointerType ptr_type;
+    Int32Type i32_type;
+    std::vector<Type*> param_types = {&ptr_type, &i32_type, &ptr_type};
+    
+    FunctionType func_type(&void_type, param_types);
+    
+    // 验证函数类型属性
+    EXPECT_FALSE(func_type.isPointerTy());
+    EXPECT_FALSE(func_type.isAggregateTy());
+    EXPECT_EQ(func_type.getReturnType(), &void_type);
+    EXPECT_EQ(func_type.getNumParams(), 3);
+    EXPECT_EQ(func_type.getParamType(0), &ptr_type);
+    EXPECT_EQ(func_type.getParamType(1), &i32_type);
+    EXPECT_EQ(func_type.getParamType(2), &ptr_type);
+    
+    // 测试打印
+    std::string print_result = func_type.print();
+    EXPECT_TRUE(print_result.find("void") != std::string::npos);
+    EXPECT_TRUE(print_result.find("ptr") != std::string::npos);
+    EXPECT_TRUE(print_result.find("i32") != std::string::npos);
+    
+    // 测试类型相等性
+    FunctionType another_func_type(&void_type, param_types);
+    EXPECT_TRUE(func_type.isEqual(&another_func_type));
+    
+    // 测试不同参数类型的函数
+    std::vector<Type*> different_param_types = {&ptr_type, &i32_type};
+    FunctionType different_param_func_type(&void_type, different_param_types);
+    EXPECT_FALSE(func_type.isEqual(&different_param_func_type));
+    
+    // 测试修改参数类型
+    func_type.setParamType(1, &ptr_type);
+    EXPECT_EQ(func_type.getParamType(1), &ptr_type);
+    
+    // 测试添加参数类型
+    func_type.addParamType(&i32_type);
+    EXPECT_EQ(func_type.getNumParams(), 4);
+    EXPECT_EQ(func_type.getParamType(3), &i32_type);
+}
+
+// 测试函数类型的复合测试：返回值存在void
+TEST(TypeTest, FunctionTypeWithVoidReturnTest) {
+    // 创建一个返回void的函数类型
+    VoidType void_type;
+    Int32Type i32_type;
+    Int8Type i8_type;
+    PointerType ptr_type;
+    std::vector<Type*> param_types = {&i32_type, &i8_type, &ptr_type};
+    
+    FunctionType func_type(&void_type, param_types);
+    
+    // 验证函数类型属性
+    EXPECT_FALSE(func_type.isPointerTy());
+    EXPECT_FALSE(func_type.isAggregateTy());
+    EXPECT_EQ(func_type.getReturnType(), &void_type);
+    EXPECT_EQ(func_type.getNumParams(), 3);
+    EXPECT_EQ(func_type.getParamType(0), &i32_type);
+    EXPECT_EQ(func_type.getParamType(1), &i8_type);
+    EXPECT_EQ(func_type.getParamType(2), &ptr_type);
+    
+    // 测试打印
+    std::string print_result = func_type.print();
+    EXPECT_TRUE(print_result.find("void") != std::string::npos);
+    EXPECT_TRUE(print_result.find("i32") != std::string::npos);
+    EXPECT_TRUE(print_result.find("i8") != std::string::npos);
+    EXPECT_TRUE(print_result.find("ptr") != std::string::npos);
+    
+    // 测试类型相等性
+    FunctionType another_func_type(&void_type, param_types);
+    EXPECT_TRUE(func_type.isEqual(&another_func_type));
+    
+    // 测试不同返回类型的函数
+    Int32Type another_i32_type;
+    FunctionType different_return_func_type(&another_i32_type, param_types);
+    EXPECT_FALSE(func_type.isEqual(&different_return_func_type));
+    
+    // 测试修改返回类型
+    func_type.setReturnType(&i8_type);
+    EXPECT_EQ(func_type.getReturnType(), &i8_type);
+    
+    // 测试修改参数类型
+    func_type.setParamType(0, &ptr_type);
+    EXPECT_EQ(func_type.getParamType(0), &ptr_type);
+    
+    // 测试添加参数类型
+    func_type.addParamType(&void_type);
+    EXPECT_EQ(func_type.getNumParams(), 4);
+    EXPECT_EQ(func_type.getParamType(3), &void_type);
+}
+
+// 测试更复杂的函数类型：返回void且参数包含指针和结构体
+TEST(TypeTest, ComplexFunctionTypeTest) {
+    // 创建一个复杂的函数类型
+    VoidType void_type;
+    PointerType ptr_type;
+    Int32Type i32_type;
+    
+    // 创建一个结构体类型作为参数
+    StructType param_struct("ParamStruct");
+    Int8Type i8_type;
+    std::vector<Type*> struct_elements = {&i32_type, &i8_type};
+    param_struct.setBody(struct_elements);
+    
+    // 创建函数类型，返回void，参数包含指针和结构体
+    std::vector<Type*> param_types = {&ptr_type, &param_struct, &i32_type};
+    FunctionType complex_func(&void_type, param_types);
+    
+    // 验证函数类型属性
+    EXPECT_FALSE(complex_func.isPointerTy());
+    EXPECT_FALSE(complex_func.isAggregateTy());
+    EXPECT_EQ(complex_func.getReturnType(), &void_type);
+    EXPECT_EQ(complex_func.getNumParams(), 3);
+    EXPECT_EQ(complex_func.getParamType(0), &ptr_type);
+    EXPECT_EQ(complex_func.getParamType(1), &param_struct);
+    EXPECT_EQ(complex_func.getParamType(2), &i32_type);
+    
+    // 测试打印
+    std::string print_result = complex_func.print();
+    EXPECT_TRUE(print_result.find("void") != std::string::npos);
+    EXPECT_TRUE(print_result.find("ptr") != std::string::npos);
+    EXPECT_TRUE(print_result.find("%struct.ParamStruct") != std::string::npos);
+    EXPECT_TRUE(print_result.find("i32") != std::string::npos);
+    
+    // 测试类型相等性
+    FunctionType another_complex_func(&void_type, param_types);
+    EXPECT_TRUE(complex_func.isEqual(&another_complex_func));
+    
+    // 测试不同结构体参数的函数
+    StructType different_struct("DifferentStruct");
+    std::vector<Type*> different_elements = {&i32_type}; // 只有一个字段
+    different_struct.setBody(different_elements);
+    
+    std::vector<Type*> params_with_different_struct = {&ptr_type, &different_struct, &i32_type};
+    FunctionType func_with_different_struct(&void_type, params_with_different_struct);
+    EXPECT_FALSE(complex_func.isEqual(&func_with_different_struct));
+    
+    // 测试修改参数类型
+    complex_func.setParamType(1, &ptr_type);
+    EXPECT_EQ(complex_func.getParamType(1), &ptr_type);
+    
+    // 测试添加参数类型
+    complex_func.addParamType(&param_struct);
+    EXPECT_EQ(complex_func.getNumParams(), 4);
+    EXPECT_EQ(complex_func.getParamType(3), &param_struct);
 }
 
 } // namespace llvm
