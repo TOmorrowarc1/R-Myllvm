@@ -4,6 +4,47 @@
 
 namespace llvm {
 
+auto IRBuilder::genLLVMReg() -> std::string {
+  static uint64_t counter = 0;
+  return "%" + std::to_string(++counter);
+}
+
+auto IRBuilder::CreateBinaryOp(Value *LHS, Value *RHS, const std::string &name, const std::string &op_name) -> BinaryOperator * {
+  if (!insert_block_) {
+    return nullptr;
+  }
+
+  std::string actual_name = name.empty() ? genLLVMReg() : name;
+  auto bin_op = std::make_unique<BinaryOperator>(actual_name, LHS->getType(), LHS, RHS, op_name);
+  auto result = bin_op.get();
+  insert_block_->addInstruction(std::move(bin_op));
+  return result;
+}
+
+auto IRBuilder::CreateUnaryOp(Value *operand, const std::string &name, const std::string &op_name) -> UnaryOperator * {
+  if (!insert_block_) {
+    return nullptr;
+  }
+
+  std::string actual_name = name.empty() ? genLLVMReg() : name;
+  auto unary_op = std::make_unique<UnaryOperator>(actual_name, op_name, operand->getType(), operand);
+  auto result = unary_op.get();
+  insert_block_->addInstruction(std::move(unary_op));
+  return result;
+}
+
+auto IRBuilder::CreateICmp(Value *LHS, Value *RHS, const std::string &name, const std::string &pred) -> ICmpInst * {
+  if (!insert_block_) {
+    return nullptr;
+  }
+
+  std::string actual_name = name.empty() ? genLLVMReg() : name;
+  auto icmp = std::make_unique<ICmpInst>(actual_name, pred, context_->getInt1Ty(), LHS, RHS);
+  auto result = icmp.get();
+  insert_block_->addInstruction(std::move(icmp));
+  return result;
+}
+
 IRBuilder::IRBuilder(LLVMContext *context)
     : context_(context), insert_block_(nullptr) {}
 
@@ -20,206 +61,87 @@ auto IRBuilder::GetInsertFunction() -> Function * {
 
 auto IRBuilder::CreateAdd(Value *LHS, Value *RHS, const std::string &name)
     -> BinaryOperator * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto bin_op =
-      std::make_unique<BinaryOperator>(name, LHS->getType(), LHS, RHS, "add");
-  auto result = bin_op.get();
-  insert_block_->addInstruction(std::move(bin_op));
-  return result;
+  return CreateBinaryOp(LHS, RHS, name, "add");
 }
 
 auto IRBuilder::CreateSub(Value *LHS, Value *RHS, const std::string &name)
     -> BinaryOperator * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto bin_op =
-      std::make_unique<BinaryOperator>(name, LHS->getType(), LHS, RHS, "sub");
-  auto result = bin_op.get();
-  insert_block_->addInstruction(std::move(bin_op));
-  return result;
+  return CreateBinaryOp(LHS, RHS, name, "sub");
 }
 
 auto IRBuilder::CreateMul(Value *LHS, Value *RHS, const std::string &name)
     -> BinaryOperator * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto bin_op =
-      std::make_unique<BinaryOperator>(name, LHS->getType(), LHS, RHS, "mul");
-  auto result = bin_op.get();
-  insert_block_->addInstruction(std::move(bin_op));
-  return result;
+  return CreateBinaryOp(LHS, RHS, name, "mul");
 }
 
 auto IRBuilder::CreateSDiv(Value *LHS, Value *RHS, const std::string &name)
     -> BinaryOperator * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto bin_op =
-      std::make_unique<BinaryOperator>(name, LHS->getType(), LHS, RHS, "sdiv");
-  auto result = bin_op.get();
-  insert_block_->addInstruction(std::move(bin_op));
-  return result;
+  return CreateBinaryOp(LHS, RHS, name, "sdiv");
 }
 
 auto IRBuilder::CreateUDiv(Value *LHS, Value *RHS, const std::string &name)
     -> BinaryOperator * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto bin_op =
-      std::make_unique<BinaryOperator>(name, LHS->getType(), LHS, RHS, "udiv");
-  auto result = bin_op.get();
-  insert_block_->addInstruction(std::move(bin_op));
-  return result;
+  return CreateBinaryOp(LHS, RHS, name, "udiv");
 }
 
 auto IRBuilder::CreateSRem(Value *LHS, Value *RHS, const std::string &name)
     -> BinaryOperator * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto bin_op =
-      std::make_unique<BinaryOperator>(name, LHS->getType(), LHS, RHS, "srem");
-  auto result = bin_op.get();
-  insert_block_->addInstruction(std::move(bin_op));
-  return result;
+  return CreateBinaryOp(LHS, RHS, name, "srem");
 }
 
 auto IRBuilder::CreateURem(Value *LHS, Value *RHS, const std::string &name)
     -> BinaryOperator * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto bin_op =
-      std::make_unique<BinaryOperator>(name, LHS->getType(), LHS, RHS, "urem");
-  auto result = bin_op.get();
-  insert_block_->addInstruction(std::move(bin_op));
-  return result;
+  return CreateBinaryOp(LHS, RHS, name, "urem");
 }
 
 auto IRBuilder::CreateShl(Value *LHS, Value *RHS, const std::string &name)
     -> BinaryOperator * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto bin_op =
-      std::make_unique<BinaryOperator>(name, LHS->getType(), LHS, RHS, "shl");
-  auto result = bin_op.get();
-  insert_block_->addInstruction(std::move(bin_op));
-  return result;
+  return CreateBinaryOp(LHS, RHS, name, "shl");
 }
 
 auto IRBuilder::CreateAShr(Value *LHS, Value *RHS, const std::string &name)
     -> BinaryOperator * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto bin_op =
-      std::make_unique<BinaryOperator>(name, LHS->getType(), LHS, RHS, "ashr");
-  auto result = bin_op.get();
-  insert_block_->addInstruction(std::move(bin_op));
-  return result;
+  return CreateBinaryOp(LHS, RHS, name, "ashr");
 }
 
 auto IRBuilder::CreateLShr(Value *LHS, Value *RHS, const std::string &name)
     -> BinaryOperator * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto bin_op =
-      std::make_unique<BinaryOperator>(name, LHS->getType(), LHS, RHS, "lshr");
-  auto result = bin_op.get();
-  insert_block_->addInstruction(std::move(bin_op));
-  return result;
+  return CreateBinaryOp(LHS, RHS, name, "lshr");
 }
 
 auto IRBuilder::CreateAnd(Value *LHS, Value *RHS, const std::string &name)
     -> BinaryOperator * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto bin_op =
-      std::make_unique<BinaryOperator>(name, LHS->getType(), LHS, RHS, "and");
-  auto result = bin_op.get();
-  insert_block_->addInstruction(std::move(bin_op));
-  return result;
+  return CreateBinaryOp(LHS, RHS, name, "and");
 }
 
 auto IRBuilder::CreateOr(Value *LHS, Value *RHS, const std::string &name)
     -> BinaryOperator * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto bin_op =
-      std::make_unique<BinaryOperator>(name, LHS->getType(), LHS, RHS, "or");
-  auto result = bin_op.get();
-  insert_block_->addInstruction(std::move(bin_op));
-  return result;
+  return CreateBinaryOp(LHS, RHS, name, "or");
 }
 
 auto IRBuilder::CreateXor(Value *LHS, Value *RHS, const std::string &name)
     -> BinaryOperator * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto bin_op =
-      std::make_unique<BinaryOperator>(name, LHS->getType(), LHS, RHS, "xor");
-  auto result = bin_op.get();
-  insert_block_->addInstruction(std::move(bin_op));
-  return result;
+  return CreateBinaryOp(LHS, RHS, name, "xor");
 }
 
 auto IRBuilder::CreateNeg(Value *operand, const std::string &name)
     -> UnaryOperator * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto unary_op =
-      std::make_unique<UnaryOperator>(name, "neg", operand->getType(), operand);
-  auto result = unary_op.get();
-  insert_block_->addInstruction(std::move(unary_op));
-  return result;
+  return CreateUnaryOp(operand, name, "neg");
 }
 
 auto IRBuilder::CreateNot(Value *operand, const std::string &name)
     -> UnaryOperator * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto unary_op =
-      std::make_unique<UnaryOperator>(name, "not", operand->getType(), operand);
-  auto result = unary_op.get();
-  insert_block_->addInstruction(std::move(unary_op));
-  return result;
+  return CreateUnaryOp(operand, name, "not");
 }
 
-auto IRBuilder::CreateAlloca(Type *type, Value *array_size,
-                             const std::string &name) -> AllocaInst * {
+auto IRBuilder::CreateAlloca(Type *type, const std::string &name)
+    -> AllocaInst * {
   if (!insert_block_) {
     return nullptr;
   }
 
-  auto alloca = std::make_unique<AllocaInst>(name, type);
+  std::string actual_name = name.empty() ? genLLVMReg() : name;
+  auto alloca = std::make_unique<AllocaInst>(actual_name, type);
   auto result = alloca.get();
   insert_block_->addInstruction(std::move(alloca));
   return result;
@@ -231,7 +153,8 @@ auto IRBuilder::CreateLoad(Type *type, Value *ptr, const std::string &name)
     return nullptr;
   }
 
-  auto load = std::make_unique<LoadInst>(name, type, ptr);
+  std::string actual_name = name.empty() ? genLLVMReg() : name;
+  auto load = std::make_unique<LoadInst>(actual_name, type, ptr);
   auto result = load.get();
   insert_block_->addInstruction(std::move(load));
   return result;
@@ -284,132 +207,52 @@ auto IRBuilder::CreateCondBr(Value *cond, BasicBlock *then_bb,
 
 auto IRBuilder::CreateICmpEQ(Value *LHS, Value *RHS, const std::string &name)
     -> ICmpInst * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto icmp =
-      std::make_unique<ICmpInst>(name, "eq", context_->getInt1Ty(), LHS, RHS);
-  auto result = icmp.get();
-  insert_block_->addInstruction(std::move(icmp));
-  return result;
+  return CreateICmp(LHS, RHS, name, "eq");
 }
 
 auto IRBuilder::CreateICmpNE(Value *LHS, Value *RHS, const std::string &name)
     -> ICmpInst * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto icmp =
-      std::make_unique<ICmpInst>(name, "ne", context_->getInt1Ty(), LHS, RHS);
-  auto result = icmp.get();
-  insert_block_->addInstruction(std::move(icmp));
-  return result;
+  return CreateICmp(LHS, RHS, name, "ne");
 }
 
 auto IRBuilder::CreateICmpSLT(Value *LHS, Value *RHS, const std::string &name)
     -> ICmpInst * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto icmp =
-      std::make_unique<ICmpInst>(name, "slt", context_->getInt1Ty(), LHS, RHS);
-  auto result = icmp.get();
-  insert_block_->addInstruction(std::move(icmp));
-  return result;
+  return CreateICmp(LHS, RHS, name, "slt");
 }
 
 auto IRBuilder::CreateICmpSLE(Value *LHS, Value *RHS, const std::string &name)
     -> ICmpInst * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto icmp =
-      std::make_unique<ICmpInst>(name, "sle", context_->getInt1Ty(), LHS, RHS);
-  auto result = icmp.get();
-  insert_block_->addInstruction(std::move(icmp));
-  return result;
+  return CreateICmp(LHS, RHS, name, "sle");
 }
 
 auto IRBuilder::CreateICmpSGT(Value *LHS, Value *RHS, const std::string &name)
     -> ICmpInst * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto icmp =
-      std::make_unique<ICmpInst>(name, "sgt", context_->getInt1Ty(), LHS, RHS);
-  auto result = icmp.get();
-  insert_block_->addInstruction(std::move(icmp));
-  return result;
+  return CreateICmp(LHS, RHS, name, "sgt");
 }
 
 auto IRBuilder::CreateICmpSGE(Value *LHS, Value *RHS, const std::string &name)
     -> ICmpInst * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto icmp =
-      std::make_unique<ICmpInst>(name, "sge", context_->getInt1Ty(), LHS, RHS);
-  auto result = icmp.get();
-  insert_block_->addInstruction(std::move(icmp));
-  return result;
+  return CreateICmp(LHS, RHS, name, "sge");
 }
 
 auto IRBuilder::CreateICmpULT(Value *LHS, Value *RHS, const std::string &name)
     -> ICmpInst * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto icmp =
-      std::make_unique<ICmpInst>(name, "ult", context_->getInt1Ty(), LHS, RHS);
-  auto result = icmp.get();
-  insert_block_->addInstruction(std::move(icmp));
-  return result;
+  return CreateICmp(LHS, RHS, name, "ult");
 }
 
 auto IRBuilder::CreateICmpULE(Value *LHS, Value *RHS, const std::string &name)
     -> ICmpInst * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto icmp =
-      std::make_unique<ICmpInst>(name, "ule", context_->getInt1Ty(), LHS, RHS);
-  auto result = icmp.get();
-  insert_block_->addInstruction(std::move(icmp));
-  return result;
+  return CreateICmp(LHS, RHS, name, "ule");
 }
 
 auto IRBuilder::CreateICmpUGT(Value *LHS, Value *RHS, const std::string &name)
     -> ICmpInst * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto icmp =
-      std::make_unique<ICmpInst>(name, "ugt", context_->getInt1Ty(), LHS, RHS);
-  auto result = icmp.get();
-  insert_block_->addInstruction(std::move(icmp));
-  return result;
+  return CreateICmp(LHS, RHS, name, "ugt");
 }
 
 auto IRBuilder::CreateICmpUGE(Value *LHS, Value *RHS, const std::string &name)
     -> ICmpInst * {
-  if (!insert_block_) {
-    return nullptr;
-  }
-
-  auto icmp =
-      std::make_unique<ICmpInst>(name, "uge", context_->getInt1Ty(), LHS, RHS);
-  auto result = icmp.get();
-  insert_block_->addInstruction(std::move(icmp));
-  return result;
+  return CreateICmp(LHS, RHS, name, "uge");
 }
 
 auto IRBuilder::CreatePHI(Type *type, const std::string &name) -> PHINode * {
@@ -417,7 +260,8 @@ auto IRBuilder::CreatePHI(Type *type, const std::string &name) -> PHINode * {
     return nullptr;
   }
 
-  auto phi = std::make_unique<PHINode>(name, type);
+  std::string actual_name = name.empty() ? genLLVMReg() : name;
+  auto phi = std::make_unique<PHINode>(actual_name, type);
   auto result = phi.get();
   insert_block_->addInstruction(std::move(phi));
   return result;
@@ -429,7 +273,8 @@ auto IRBuilder::CreateCall(Function *func, const std::vector<Value *> &args,
     return nullptr;
   }
 
-  auto call = std::make_unique<CallInst>(name, func, args);
+  std::string actual_name = name.empty() ? genLLVMReg() : name;
+  auto call = std::make_unique<CallInst>(actual_name, func, args);
   auto result = call.get();
   insert_block_->addInstruction(std::move(call));
   return result;
@@ -442,9 +287,10 @@ auto IRBuilder::CreateGEP(Type *type, Value *ptr,
     return nullptr;
   }
 
+  std::string actual_name = name.empty() ? genLLVMReg() : name;
   Type *pointer_type = context_->getPointerType();
 
-  auto gep = std::make_unique<GetElementPtrInst>(name, pointer_type, type, ptr,
+  auto gep = std::make_unique<GetElementPtrInst>(actual_name, pointer_type, type, ptr,
                                                  indices);
   auto result = gep.get();
   insert_block_->addInstruction(std::move(gep));
