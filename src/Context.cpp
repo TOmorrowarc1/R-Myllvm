@@ -4,7 +4,7 @@
 
 namespace llvm {
 
-auto LLVMContext::getInt32Ty() -> Type * {
+auto LLVMContext::getInt32Ty() -> IntegerType * {
   auto it = integer_types_.find(32);
   if (it != integer_types_.end()) {
     return it->second.get();
@@ -16,7 +16,7 @@ auto LLVMContext::getInt32Ty() -> Type * {
   return result;
 }
 
-auto LLVMContext::getInt8Ty() -> Type * {
+auto LLVMContext::getInt8Ty() -> IntegerType * {
   auto it = integer_types_.find(8);
   if (it != integer_types_.end()) {
     return it->second.get();
@@ -28,7 +28,7 @@ auto LLVMContext::getInt8Ty() -> Type * {
   return result;
 }
 
-auto LLVMContext::getInt1Ty() -> Type * {
+auto LLVMContext::getInt1Ty() -> IntegerType * {
   auto it = integer_types_.find(1);
   if (it != integer_types_.end()) {
     return it->second.get();

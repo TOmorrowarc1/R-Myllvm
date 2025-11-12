@@ -12,6 +12,7 @@ namespace llvm {
 
 // 前向声明
 class Type;
+class IntegerType;
 class StructType;
 class ArrayType;
 class FunctionType;
@@ -27,13 +28,13 @@ public:
   LLVMContext() = default;
 
   // 获取或创建32位整数类型对象
-  auto getInt32Ty() -> Type *;
+  auto getInt32Ty() -> IntegerType *;
 
   // 获取或创建8位整数类型对象
-  auto getInt8Ty() -> Type *;
+  auto getInt8Ty() -> IntegerType *;
 
   // 获取或创建1位整数类型对象
-  auto getInt1Ty() -> Type *;
+  auto getInt1Ty() -> IntegerType *;
 
   // 获取或创建结构体类型对象
   auto getStructType(const std::string &name) -> StructType *;
@@ -50,11 +51,11 @@ public:
   auto getPointerType() -> PointerType *;
 
   // 获取或创建整数常量对象
-  auto getIntConstant(IntegerType* type, int64_t value) -> ConstantInt*;
+  auto getIntConstant(IntegerType *type, int64_t value) -> ConstantInt *;
 
 private:
   // 存储已创建的整数类对象，避免重复创建，通过位数索引
-  std::map<int32_t, std::unique_ptr<Type>> integer_types_;
+  std::map<int32_t, std::unique_ptr<IntegerType>> integer_types_;
 
   // 存储已创建的Type Struct对象，避免重复创建，通过名称索引
   std::map<std::string, std::unique_ptr<StructType>> struct_types_;
@@ -71,7 +72,8 @@ private:
       function_types_;
 
   // 存储已创建的整数常量对象，避免重复创建，通过类型与整数值索引
-  std::map<std::pair<IntegerType*, int64_t>, std::unique_ptr<ConstantInt>> int_constants_;
+  std::map<std::pair<IntegerType *, int64_t>, std::unique_ptr<ConstantInt>>
+      int_constants_;
 };
 
 class FuncComparator {
