@@ -292,6 +292,7 @@ public:
 class PHINode : public Instruction {
 private:
   std::string name_;  // 指令对应 Value（结果寄存器）的名称
+  Type* type_;        // 结果类型
   std::vector<std::pair<Value*, BasicBlock*>> incomings_;  // 输入值及其对应的前驱基本块列表
 
 public:

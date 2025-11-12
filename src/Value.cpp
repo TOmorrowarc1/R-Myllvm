@@ -189,6 +189,16 @@ auto BasicBlock::print() const -> std::string {
 BinaryOperator::BinaryOperator(const std::string &name, Type *type, Value *lhs,
                                Value *rhs, const std::string &op)
     : name_(name), op_(op), type_(type), lhs_(lhs), rhs_(rhs) {
+  // 检查操作数类型是否为整数
+  auto *lhs_int_type = dynamic_cast<IntegerType *>(lhs->getType());
+  auto *rhs_int_type = dynamic_cast<IntegerType *>(rhs->getType());
+  if (!lhs_int_type || !rhs_int_type) {
+    throw std::runtime_error("BinaryOperator operands must be of integer type");
+  }
+  // 检查操作数类型是否与结果类型匹配
+  if (!lhs->getType()->isEqual(type) || !rhs->getType()->isEqual(type)) {
+    throw std::runtime_error("BinaryOperator operand types must match result type");
+  }
   addOperand(lhs);
   addOperand(rhs);
 }
@@ -212,6 +222,15 @@ auto BinaryOperator::print() const -> std::string {
 UnaryOperator::UnaryOperator(const std::string &name, const std::string &op,
                              Type *type, Value *operand)
     : name_(name), op_(op), type_(type), operand_(operand) {
+  // 检查操作数类型是否为整数
+  auto *operand_int_type = dynamic_cast<IntegerType *>(operand->getType());
+  if (!operand_int_type) {
+    throw std::runtime_error("UnaryOperator operand must be of integer type");
+  }
+  // 检查操作数类型是否与结果类型匹配
+  if (!operand->getType()->isEqual(type)) {
+    throw std::runtime_error("UnaryOperator operand type must match result type");
+  }
   addOperand(operand);
 }
 
@@ -231,6 +250,10 @@ auto UnaryOperator::print() const -> std::string {
 // LoadInst 类实现
 LoadInst::LoadInst(const std::string &name, Type *type, Value *ptr)
     : name_(name), type_(type), ptr_(ptr) {
+  // 检查指针类型是否为指针
+  if (!ptr->getType()->isPointerTy()) {
+    throw std::runtime_error("LoadInst pointer operand must be of pointer type");
+  }
   addOperand(ptr);
 }
 
@@ -247,6 +270,14 @@ auto LoadInst::print() const -> std::string {
 // StoreInst 类实现
 StoreInst::StoreInst(Type *type, Value *ptr, Value *value)
     : type_(type), ptr_(ptr), value_(value) {
+  // 检查指针类型是否为指针
+  if (!ptr->getType()->isPointerTy()) {
+    throw std::runtime_error("StoreInst pointer operand must be of pointer type");
+  }
+  // 检查存储值类型是否与指定类型匹配
+  if (!value->getType()->isEqual(type)) {
+    throw std::runtime_error("StoreInst value type must match specified type");
+  }
   addOperand(ptr);
   addOperand(value);
 }
@@ -286,6 +317,21 @@ auto AllocaInst::print() const -> std::string {
 ICmpInst::ICmpInst(const std::string &name, const std::string &predicate,
                    Type *type, Value *lhs, Value *rhs)
     : name_(name), predicate_(predicate), type_(type), lhs_(lhs), rhs_(rhs) {
+  // 检查操作数类型是否为整数
+  auto *lhs_int_type = dynamic_cast<IntegerType *>(lhs->getType());
+  auto *rhs_int_type = dynamic_cast<IntegerType *>(rhs->getType());
+  if (!lhs_int_type || !rhs_int_type) {
+    throw std::runtime_error("ICmpInst operands must be of integer type");
+  }
+  // 检查操作数类型是否相同
+  if (!lhs->getType()->isEqual(rhs->getType())) {
+    throw std::runtime_error("ICmpInst operand types must match");
+  }
+  // 检查结果类型是否为Int1Type
+  auto *result_int1_type = dynamic_cast<Int1Type *>(type);
+  if (!result_int1_type) {
+    throw std::runtime_error("ICmpInst result type must be Int1Type");
+  }
   addOperand(lhs);
   addOperand(rhs);
 }
@@ -327,6 +373,11 @@ auto BrInst::print() const -> std::string {
 ConBrInst::ConBrInst(Value *condition, BasicBlock *then_block,
                      BasicBlock *else_block)
     : condition_(condition), then_block_(then_block), else_block_(else_block) {
+  // 检查条件值是否为i1类型
+  auto *condition_int1_type = dynamic_cast<Int1Type *>(condition->getType());
+  if (!condition_int1_type) {
+    throw std::runtime_error("ConBrInst condition must be of Int1Type");
+  }
   addOperand(condition);
 }
 
@@ -376,20 +427,21 @@ auto ReturnInst::print() const -> std::string {
 }
 
 // PHINode 类实现
-PHINode::PHINode(const std::string &name, Type *type) : name_(name) {
-  // 类型信息在构造时设置，但这里我们不需要存储它，因为可以从输入值推断
+PHINode::PHINode(const std::string &name, Type *type) : name_(name), type_(type) {
+  // 类型信息在构造时设置并存储
 }
 
 void PHINode::addIncoming(Value *value, BasicBlock *block) {
+  // 检查输入值类型是否与PHI节点类型一致
+  if (!value->getType()->isEqual(type_)) {
+    throw std::runtime_error("PHINode incoming value type must match PHI node type");
+  }
   incomings_.emplace_back(value, block);
   addOperand(value);
 }
 
 auto PHINode::getType() const -> Type * {
-  if (incomings_.empty()) {
-    throw std::runtime_error("PHINode has no incoming values");
-  }
-  return incomings_[0].first->getType();
+  return type_;
 }
 
 auto PHINode::getName() const -> std::string { return name_; }
@@ -412,6 +464,25 @@ auto PHINode::print() const -> std::string {
 CallInst::CallInst(const std::string &name, Function *function,
                    const std::vector<Value *> &args)
     : name_(name), function_(function), args_(args) {
+  // 获取函数类型
+  auto *func_type = dynamic_cast<FunctionType *>(function->getType());
+  if (!func_type) {
+    throw std::runtime_error("CallInst function must have a FunctionType");
+  }
+  
+  // 检查参数数量是否匹配
+  const auto &param_types = func_type->getParamTypes();
+  if (args.size() != param_types.size()) {
+    throw std::runtime_error("CallInst argument count does not match function parameter count");
+  }
+  
+  // 检查每个参数类型是否匹配
+  for (size_t i = 0; i < args.size(); ++i) {
+    if (!args[i]->getType()->isEqual(param_types[i])) {
+      throw std::runtime_error("CallInst argument type does not match function parameter type");
+    }
+  }
+  
   for (auto arg : args) {
     addOperand(arg);
   }
@@ -461,6 +532,19 @@ GetElementPtrInst::GetElementPtrInst(const std::string &name, Type *type,
                                      const std::vector<Value *> &indices)
     : name_(name), type_(type), base_type_(base_type), ptr_(ptr),
       indices_(indices) {
+  // 检查指针类型是否为指针
+  if (!ptr->getType()->isPointerTy()) {
+    throw std::runtime_error("GetElementPtrInst pointer operand must be of pointer type");
+  }
+  
+  // 检查所有索引是否为整数类型
+  for (auto index : indices) {
+    auto *index_int_type = dynamic_cast<IntegerType *>(index->getType());
+    if (!index_int_type) {
+      throw std::runtime_error("GetElementPtrInst indices must be of integer type");
+    }
+  }
+  
   addOperand(ptr);
   for (auto index : indices) {
     addOperand(index);

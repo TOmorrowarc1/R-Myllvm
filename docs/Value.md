@@ -15,7 +15,6 @@ llvm::Value (抽象基类)
   │
   ├── llvm::User (中间基类)
   │     │
-  │     │
   │     ├── llvm::Instruction (指令)
   │     │     │
   │     │     ├── llvm::BinaryOperator (二元运算指令)
@@ -136,7 +135,7 @@ llvm::Value (抽象基类)
 - `Value* rhs_` - 右操作数
 
 接口：
-- `BinaryOperator(const std::string& name, Type* type, Value* lhs, Value* rhs, const std::string& op)` - 构造函数
+- `BinaryOperator(const std::string& name, Type* type, Value* lhs, Value* rhs, const std::string& op)` - 构造函数，要求操作数类型必须为整数。
 - `auto getLHS() const -> Value*` - 获取左操作数
 - `auto getRHS() const -> Value*` - 获取右操作数
 - `auto getOp() const -> std::string` - 获取操作码
@@ -152,7 +151,7 @@ llvm::Value (抽象基类)
 - `Value* operand_` - 操作数
 
 接口:
-- `UnaryOperator(const std::string& name, const std::string& op, Type* type, Value* operand)` - 构造函数
+- `UnaryOperator(const std::string& name, const std::string& op, Type* type, Value* operand)` - 构造函数，要求操作数类型为整数。
 - `auto getOperand() const -> Value*` - 获取操作数
 - `auto getOp() const -> std::string` - 获取操作码
 - `auto getType() const -> Type*` - 获取结果类型
@@ -166,7 +165,7 @@ llvm::Value (抽象基类)
 - `Value* ptr_` - 指向加载地址的指针
 
 接口：
-- `LoadInst(const std::string& name, Type* type, Value* ptr)` - 构造函数
+- `LoadInst(const std::string& name, Type* type, Value* ptr)` - 构造函数，要求指针类型为指针。
 - `auto getPtr() const -> Value*` - 获取指针操作数
 - `auto getType() const -> Type*` - 获取结果类型
 - `auto getName() const -> std::string` - 获取结果名称
@@ -179,7 +178,7 @@ llvm::Value (抽象基类)
 - `Value* value_` - 要存储的值
   
 接口：
-- `StoreInst(Type* type, Value* ptr, Value* value)` - 构造函数
+- `StoreInst(Type* type, Value* ptr, Value* value)` - 构造函数，要求指针类型为指针。
 - `auto getPtr() const -> Value*` - 获取指针操作数
 - `auto getValue() const -> Value*` - 获取存储值操作数
 - `auto getType() const -> Type*` - 获取存储值类型
@@ -206,7 +205,7 @@ llvm::Value (抽象基类)
 - `Value* rhs_` - 右操作数
 
 接口：
-- `ICmpInst(const std::string& name, const std::string& predicate, Type* type, Value* lhs, Value* rhs)` - 构造函数
+- `ICmpInst(const std::string& name, const std::string& predicate, Type* type, Value* lhs, Value* rhs)` - 构造函数，要求操作数为整数。
 - `auto getLHS() const -> Value*` - 获取左操作数
 - `auto getRHS() const -> Value*` - 获取右操作数
 - `auto getPredicate() const -> std::string` - 获取比较谓词
@@ -257,11 +256,12 @@ llvm::Value (抽象基类)
 #### 4.9 PHI节点
 成员：
 - `std::string name_` - 指令对应 Value（结果寄存器）的名称
+- `Type* type_` - 结果类型
 - `std::vector<std::pair<Value*, BasicBlock*>> incomings_` - 输入值及其对应的前驱基本块列表
 
 接口：
 - `PHINode(const std::string& name, Type* type)` - 构造函数
-- `void addIncoming(Value* value, BasicBlock* block)` - 添加输入值及其对应的前驱基本块
+- `void addIncoming(Value* value, BasicBlock* block)` - 添加输入值及其对应的前驱基本块，要求检查类型是否与构造时设置类型一致。
 - `auto getType() const -> Type*` - 获取结果类型
 - `auto getName() const -> std::string` - 获取结果名称
 - `auto print() const -> std::string` - 打印指令信息
@@ -289,12 +289,14 @@ llvm::Value (抽象基类)
 - `std::vector<Value*> indices_` - 索引操作数列表
 
 接口：
-- `GetElementPtrInst(const std::string& name, Type* type, Type* base_type, Value* ptr, const std::vector<Value*>& indices)` - 构造函数
+- `GetElementPtrInst(const std::string& name, Type* type, Type* base_type, Value* ptr, const std::vector<Value*>& indices)` - 构造函数，要求指针类型为指针，同时indices均为整数类型。
 - `auto getPtr() const -> Value*` - 获取基础指针操作数
 - `auto getIndices() const -> const std::vector<Value*>&` - 获取索引操作数列表
 - `auto getType() const -> Type*` - 获取结果类型
 - `auto getName() const -> std::string` - 获取结果名称
 - `auto print() const -> std::string` - 打印指令信息
+
+> 注意事项：实现 Value 系统时，绝大多数构造函数中都要添加类型检测断言。
 
    
 ### 5. 常量值 `llvm::Constant`
