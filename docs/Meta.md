@@ -27,7 +27,7 @@
 
 
 ### 2. Module
-该类型指代编译单元，最大的 LLVM IR 代码容器。内部拥有多个 Function 与 GlobalVariable 的所有权。
+该类型指代编译单元，最大的 LLVM IR 代码容器。其内部拥有多个 Function 与 GlobalVariable 的所有权，同时 Module 承担创建 function 与全局变量的职责。
 
 - **成员**:
   - `std::string module_name_` - 模块名称。
@@ -39,16 +39,59 @@
   - `Module(const std::string& name, LLVMContext* context)` - 构造函数，初始化模块名称与上下文指针。
   - `auto getFunction(const std::string& name) -> Function*` - 根据名称获取函数对象指针，若不存在则返回 nullptr。
   - `void addFunction(const std::string& name, std::unique_ptr<Function>&& function)` - 向模块中添加函数对象。
+  - `void getOrCreateFunction(const std::string& name, FunctionType* func_type)` - 获取或创建函数对象。
   - `auto getGlobalVariable(const std::string& name) -> GlobalVariable*` - 根据名称获取全局变量对象指针，若不存在则返回 nullptr。
   - `void addGlobalVariable(const std::string& name, std::unque_ptr<GlobalVariable>&& global_var)` - 向模块中添加全局变量对象。
+  - `void getOrCreateGlobalVariable(const std::string& name, Type* var_type, bool is_constant, llvm::Constant* init_value)` - 获取或创建全局变量对象。
   - `auto getContext() -> LLVMContext*` - 获取所属上下文指针。
   - `auto print() -> std::string` - 打印模块内所有函数与全局变量的信息。
 
 ### 3. IRBuilder
-该类型为 LLVM IR 指令构建器，使用 Builder 模式生成各种对象。
+该类型为 LLVM IR 指令构建器，使用 Builder 模式生成并在对应位置插入指令。换言之，在 Module-Function-BB-Instruction 的层级结构中，只有 Instruction的创建与插入由 IRBuilder 负责，余下都交给对应父类负责。（考虑到 BasicBlock 设计问题，IRBuilder 暂时只能将指令插入到 BasicBlock 末尾）
 
-- **接口**:
-  - `std::make_unique<llvm::IRBuilder<>>(*context_)` - 创建 IR 构建器
-  - `builder_->SetInsertPoint(block)` - 设置插入点
-  - `builder_->GetInsertBlock()` - 获取当前插入块
-  - `builder_->GetInsertBlock()->getParent()` - 获取当前函数
+成员：
+- `LLVMContext* context_` - 关联上下文指针。
+- `BasicBlock* insert_block_` - 当前插入点基本块指针。
+
+位置设计接口:
+  - `llvm::IRBuilder(*context_)` - 构造函数，创建 IR 构建器
+  - `void SetInsertPoint(BasicBlock* point)` - 设置插入点
+  - `void GetInsertBlock()` - 获取当前插入块
+  - `void GetInsertBlock()->getParent()` - 获取当前函数
+  
+指令创建接口：
+  - `auto CreateAdd(Value* LHS, Value* RHS, const std::string& name = "") -> BinaryOperator*` - 创建加法指令
+  - `auto CreateSub(Value* LHS, Value* RHS, const std::string& name = "") -> BinaryOperator*` - 创建减法指令
+  - `auto CreateMul(Value* LHS, Value* RHS, const std::string& name = "") -> BinaryOperator*` - 创建乘法指令
+  - `auto CreateSDiv(Value* LHS, Value* RHS, const std::string& name = "") -> BinaryOperator*` - 创建有符号除法指令
+  - `auto CreateUDiv(Value* LHS, Value* RHS, const std::string& name = "") -> BinaryOperator*` - 创建无符号除法指令
+  - `auto CreateSRem(Value* LHS, Value* RHS, const std::string& name = "") -> BinaryOperator*` - 创建有符号取模指令
+  - `auto CreateURem(Value* LHS, Value* RHS, const std::string& name = "") -> BinaryOperator*` - 创建无符号取模指令
+  - `auto CreateShl(Value* LHS, Value* RHS, const std::string& name = "") -> BinaryOperator*` - 创建左移指令
+  - `auto CreateAShr(Value* LHS, Value* RHS, const std::string& name = "") -> BinaryOperator*` - 创建算术右移指令
+  - `auto CreateLShr(Value* LHS, Value* RHS, const std::string& name = "") -> BinaryOperator*` - 创建逻辑右移指令
+  - `auto CreateAnd(Value* LHS, Value* RHS, const std::string& name = "") -> BinaryOperator*` - 创建按位与指令
+  - `auto CreateOr(Value* LHS, Value* RHS, const std::string& name = "") -> BinaryOperator*` - 创建按位或指令
+  - `auto CreateXor(Value* LHS, Value* RHS, const std::string& name = "") -> BinaryOperator*` - 创建按位异或指令
+  - `auto CreateNeg(Value* operand, const std::string& name = "") -> UnaryOperator*` - 创建取负指令
+  - `auto CreateNot(Value* operand, const std::string& name = "") -> UnaryOperator*` - 创建按位取反指令
+  - `auto CreateAlloca(Type* type, Value* array_size = nullptr, const std::string& name = "") -> AllocaInst*` - 创建栈上分配指令
+  - `auto CreateLoad(Type* type, Value* ptr, const std::string& name = "") -> LoadInst*` - 创建加载指令
+  - `auto CreateStore(Value* value, Value* ptr) -> StoreInst*` - 创建存储指令
+  - `auto CreateRet(Value* value) -> ReturnInst*` - 创建返回指令
+  - `auto CreateBr(BasicBlock* dest) -> BrInst*` - 创建无条件分支指令
+  - `auto CreateCondBr(Value* cond, BasicBlock* then_bb, BasicBlock* else_bb) -> ConBrInst*` - 创建条件分支指令
+  - `auto CreateICmpEQ(Value* LHS, Value* RHS, const std::string& name = "") -> ICmpInst*` - 创建等于比较指令
+  - `auto CreateICmpNE(Value* LHS, Value* RHS, const std::string& name = "") -> ICmpInst*` - 创建不等于比较指令
+  - `auto CreateICmpSLT(Value* LHS, Value* RHS, const std::string& name = "") -> ICmpInst*` - 创建有符号小于比较指令
+  - `auto CreateICmpSLE(Value* LHS, Value* RHS, const std::string& name = "") -> ICmpInst*` - 创建有符号小于等于比较指令
+  - `auto CreateICmpSGT(Value* LHS, Value* RHS, const std::string& name = "") -> ICmpInst*` - 创建有符号大于比较指令
+  - `auto CreateICmpSGE(Value* LHS, Value* RHS, const std::string& name = "") -> ICmpInst*` - 创建有符号大于等于比较指令
+  - `auto CreateICmpULT(Value* LHS, Value* RHS, const std::string& name = "") -> ICmpInst*` - 创建无符号小于比较指令
+  - `auto CreateICmpULE(Value* LHS, Value* RHS, const std::string& name = "") -> ICmpInst*` - 创建无符号小于等于比较指令
+  - `auto CreateICmpUGT(Value* LHS, Value* RHS, const std::string& name = "") -> ICmpInst*` - 创建无符号大于比较指令
+  - `auto CreateICmpUGE(Value* LHS, Value* RHS, const std::string& name = "") -> ICmpInst*` - 创建无符号大于等于比较指令
+  - `auto CreatePHI(Type* type, const std::string& name = "") -> PHINode*` - 创建PHI节点指令
+  - `auto CreateCall(Function* func, const std::vector<Value*>& args, const std::string& name = "") -> CallInst*` - 创建函数调用指令
+  - `auto CreateGEP(Type* type, Value* ptr, const std::vector<Value*>& indices, const std::string& name = "") -> GetElementPtrInst*` - 创建 GetElementPtr 指令
+  - `auto CreateMemCpy(Value* dest, Value* src, uint64_t size, bool is_violatile) -> CallInst*` - 创建内存拷贝指令。该函数需要调用LLVM内置的memcpy函数实现内存拷贝操作，其中memcpy函数的声明会在第一次调用时自动创建并添加到Module中；由于不考虑优化，该函数参数只有四个：目的、源、大小、是否易失；声明时需要编辑函数名为memcpy.p0.p0.i64以符合LLVM命名规范。
