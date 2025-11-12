@@ -1,0 +1,91 @@
+#include "Context.hpp"
+#include "Type.hpp"
+
+namespace llvm {
+
+auto LLVMContext::getInt32Ty() -> Type * {
+  auto it = integer_types_.find(32);
+  if (it != integer_types_.end()) {
+    return it->second.get();
+  }
+
+  auto type = std::make_unique<Int32Type>();
+  auto *result = type.get();
+  integer_types_[32] = std::move(type);
+  return result;
+}
+
+auto LLVMContext::getInt8Ty() -> Type * {
+  auto it = integer_types_.find(8);
+  if (it != integer_types_.end()) {
+    return it->second.get();
+  }
+
+  auto type = std::make_unique<Int8Type>();
+  auto *result = type.get();
+  integer_types_[8] = std::move(type);
+  return result;
+}
+
+auto LLVMContext::getInt1Ty() -> Type * {
+  auto it = integer_types_.find(1);
+  if (it != integer_types_.end()) {
+    return it->second.get();
+  }
+
+  auto type = std::make_unique<Int1Type>();
+  auto *result = type.get();
+  integer_types_[1] = std::move(type);
+  return result;
+}
+
+auto LLVMContext::getStructType(const std::string &name) -> StructType * {
+  auto it = struct_types_.find(name);
+  if (it != struct_types_.end()) {
+    return it->second.get();
+  }
+
+  auto type = std::make_unique<StructType>(name);
+  auto *result = type.get();
+  struct_types_[name] = std::move(type);
+  return result;
+}
+
+auto LLVMContext::getArrayType(Type *element_type, int32_t length)
+    -> ArrayType * {
+  auto key = std::make_pair(element_type, length);
+  auto it = array_types_.find(key);
+  if (it != array_types_.end()) {
+    return it->second.get();
+  }
+
+  auto type = std::make_unique<ArrayType>(element_type, length);
+  auto *result = type.get();
+  array_types_[key] = std::move(type);
+  return result;
+}
+
+auto LLVMContext::getFunctionType(Type *return_type,
+                                  const std::vector<Type *> &param_types)
+    -> FunctionType * {
+  ArrayRef<Type *> param_types_ref(param_types);
+  auto key = std::make_pair(return_type, param_types_ref);
+  auto it = function_types_.find(key);
+  if (it != function_types_.end()) {
+    return it->second.get();
+  }
+
+  auto type = std::make_unique<FunctionType>(return_type, param_types);
+  auto *result = type.get();
+  function_types_[key] = std::move(type);
+  return result;
+}
+
+auto LLVMContext::getPointerType() -> PointerType * {
+  if (!pointer_type_) {
+    pointer_type_ = std::make_unique<PointerType>();
+  }
+  return pointer_type_.get();
+}
+
+} // namespace llvm

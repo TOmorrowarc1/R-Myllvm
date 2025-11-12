@@ -20,6 +20,8 @@ FetchContent_MakeAvailable(googletest)
 set(SOURCES
     src/Type.cpp
     src/Value.cpp
+    src/Context.cpp
+    src/Module.cpp
 )
 
 # 创建静态库
