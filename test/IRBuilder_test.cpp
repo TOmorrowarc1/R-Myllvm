@@ -26,10 +26,10 @@ TEST(IRBuilderTest, BasicFunctionalityTest) {
 
   // 创建基本块
   BasicBlock *bb = function->createBasicBlock("entry");
-  
+
   // 设置插入点
   builder.SetInsertPoint(bb);
-  
+
   // 测试设置插入点后获取插入块和函数
   EXPECT_EQ(builder.GetInsertBlock(), bb);
   EXPECT_EQ(builder.GetInsertFunction(), function);

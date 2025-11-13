@@ -41,7 +41,7 @@ public:
   VoidType() = default;
 
   auto isPointerTy() const -> bool override { return false; }
-  
+
   auto isAggregateTy() const -> bool override { return false; }
 
   auto isEqual(const Type *other_type) const -> bool override;
@@ -55,7 +55,7 @@ public:
   virtual ~IntegerType() = default;
 
   auto isPointerTy() const -> bool override { return false; }
-  
+
   auto isAggregateTy() const -> bool override { return false; }
 };
 

@@ -21,9 +21,15 @@ private:
   BasicBlock *insert_block_; // 当前插入点基本块指针
 
   auto genLLVMReg() -> std::string; // 生成唯一寄存器名称
-  auto CreateBinaryOp(Value *LHS, Value *RHS, const std::string &name, const std::string &op_name) -> BinaryOperator *; // 创建二元运算的辅助函数
-  auto CreateUnaryOp(Value *operand, const std::string &name, const std::string &op_name) -> UnaryOperator *; // 创建一元运算的辅助函数
-  auto CreateICmp(Value *LHS, Value *RHS, const std::string &name, const std::string &pred) -> ICmpInst *; // 创建整数比较的辅助函数
+  auto CreateBinaryOp(Value *LHS, Value *RHS, const std::string &name,
+                      const std::string &op_name)
+      -> BinaryOperator *; // 创建二元运算的辅助函数
+  auto CreateUnaryOp(Value *operand, const std::string &name,
+                     const std::string &op_name)
+      -> UnaryOperator *; // 创建一元运算的辅助函数
+  auto CreateICmp(Value *LHS, Value *RHS, const std::string &name,
+                  const std::string &pred)
+      -> ICmpInst *; // 创建整数比较的辅助函数
 
 public:
   // 构造函数，创建 IR 构建器

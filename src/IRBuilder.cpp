@@ -9,37 +9,43 @@ auto IRBuilder::genLLVMReg() -> std::string {
   return "%" + std::to_string(++counter);
 }
 
-auto IRBuilder::CreateBinaryOp(Value *LHS, Value *RHS, const std::string &name, const std::string &op_name) -> BinaryOperator * {
+auto IRBuilder::CreateBinaryOp(Value *LHS, Value *RHS, const std::string &name,
+                               const std::string &op_name) -> BinaryOperator * {
   if (!insert_block_) {
     return nullptr;
   }
 
   std::string actual_name = name.empty() ? genLLVMReg() : name;
-  auto bin_op = std::make_unique<BinaryOperator>(actual_name, LHS->getType(), LHS, RHS, op_name);
+  auto bin_op = std::make_unique<BinaryOperator>(actual_name, LHS->getType(),
+                                                 LHS, RHS, op_name);
   auto result = bin_op.get();
   insert_block_->addInstruction(std::move(bin_op));
   return result;
 }
 
-auto IRBuilder::CreateUnaryOp(Value *operand, const std::string &name, const std::string &op_name) -> UnaryOperator * {
+auto IRBuilder::CreateUnaryOp(Value *operand, const std::string &name,
+                              const std::string &op_name) -> UnaryOperator * {
   if (!insert_block_) {
     return nullptr;
   }
 
   std::string actual_name = name.empty() ? genLLVMReg() : name;
-  auto unary_op = std::make_unique<UnaryOperator>(actual_name, op_name, operand->getType(), operand);
+  auto unary_op = std::make_unique<UnaryOperator>(actual_name, op_name,
+                                                  operand->getType(), operand);
   auto result = unary_op.get();
   insert_block_->addInstruction(std::move(unary_op));
   return result;
 }
 
-auto IRBuilder::CreateICmp(Value *LHS, Value *RHS, const std::string &name, const std::string &pred) -> ICmpInst * {
+auto IRBuilder::CreateICmp(Value *LHS, Value *RHS, const std::string &name,
+                           const std::string &pred) -> ICmpInst * {
   if (!insert_block_) {
     return nullptr;
   }
 
   std::string actual_name = name.empty() ? genLLVMReg() : name;
-  auto icmp = std::make_unique<ICmpInst>(actual_name, pred, context_->getInt1Ty(), LHS, RHS);
+  auto icmp = std::make_unique<ICmpInst>(actual_name, pred,
+                                         context_->getInt1Ty(), LHS, RHS);
   auto result = icmp.get();
   insert_block_->addInstruction(std::move(icmp));
   return result;
@@ -290,8 +296,8 @@ auto IRBuilder::CreateGEP(Type *type, Value *ptr,
   std::string actual_name = name.empty() ? genLLVMReg() : name;
   Type *pointer_type = context_->getPointerType();
 
-  auto gep = std::make_unique<GetElementPtrInst>(actual_name, pointer_type, type, ptr,
-                                                 indices);
+  auto gep = std::make_unique<GetElementPtrInst>(actual_name, pointer_type,
+                                                 type, ptr, indices);
   auto result = gep.get();
   insert_block_->addInstruction(std::move(gep));
   return result;

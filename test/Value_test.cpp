@@ -961,28 +961,28 @@ TEST(ValueTest, BasicBlockMultipleInstructionsTest) {
 TEST(ValueTest, FunctionTest) {
   Int32Type i32_type;
   Int8Type i8_type;
-  
+
   // 创建函数类型：i32 (i32, i8)
   std::vector<Type *> param_types = {&i32_type, &i8_type};
   FunctionType func_type(&i32_type, param_types);
-  
+
   // 创建函数
   Function function("test_func", &func_type, nullptr);
-  
+
   // 测试基本属性
   EXPECT_EQ(function.getName(), "test_func");
   EXPECT_EQ(function.getType(), &func_type);
   EXPECT_EQ(function.getParent(), nullptr);
   EXPECT_FALSE(function.isDefined()); // 初始状态下函数未定义
-  
+
   // 测试参数列表（初始为空）
   const auto &args = function.getArguments();
   EXPECT_EQ(args.size(), 0);
-  
+
   // 测试基本块列表（初始为空）
   const auto &bbs = function.getBasicBlocks();
   EXPECT_EQ(bbs.size(), 0);
-  
+
   // 测试打印
   std::string print_result = function.print();
   EXPECT_TRUE(print_result.find("declare") != std::string::npos);
@@ -997,51 +997,51 @@ TEST(ValueTest, FunctionTest) {
 // 测试函数基本块管理
 TEST(ValueTest, FunctionBasicBlockTest) {
   Int32Type i32_type;
-  
+
   // 创建函数类型：i32 ()
   std::vector<Type *> param_types = {};
   FunctionType func_type(&i32_type, param_types);
-  
+
   // 创建函数
   Function function("test_func", &func_type, nullptr);
-  
+
   // 测试创建基本块
   BasicBlock *bb1 = function.createBasicBlock("entry");
   EXPECT_NE(bb1, nullptr);
   EXPECT_EQ(bb1->getName(), "entry");
   EXPECT_EQ(bb1->getParent(), &function);
-  
+
   // 测试创建同名基本块（应该自动添加后缀）
   BasicBlock *bb2 = function.createBasicBlock("entry");
   EXPECT_NE(bb2, nullptr);
   EXPECT_EQ(bb2->getName(), "entry.1");
   EXPECT_EQ(bb2->getParent(), &function);
-  
+
   // 测试再次创建同名基本块
   BasicBlock *bb3 = function.createBasicBlock("entry");
   EXPECT_NE(bb3, nullptr);
   EXPECT_EQ(bb3->getName(), "entry.2");
   EXPECT_EQ(bb3->getParent(), &function);
-  
+
   // 测试获取基本块列表
   const auto &bbs = function.getBasicBlocks();
   EXPECT_EQ(bbs.size(), 3);
   EXPECT_EQ(bbs[0], bb1);
   EXPECT_EQ(bbs[1], bb2);
   EXPECT_EQ(bbs[2], bb3);
-  
+
   // 测试根据索引获取基本块
   EXPECT_EQ(function.getBBbyIndex(0), bb1);
   EXPECT_EQ(function.getBBbyIndex(1), bb2);
   EXPECT_EQ(function.getBBbyIndex(2), bb3);
-  EXPECT_EQ(function.getBBbyIndex(3), nullptr); // 索引超出范围
+  EXPECT_EQ(function.getBBbyIndex(3), nullptr);   // 索引超出范围
   EXPECT_EQ(function.getBBbyIndex(100), nullptr); // 索引超出范围
-  
+
   // 测试添加基本块
   auto bb4 = std::make_unique<BasicBlock>("custom", &function);
   auto bb4_ptr = bb4.get();
   function.addBasicBlock(std::move(bb4));
-  
+
   const auto &bbs_after = function.getBasicBlocks();
   EXPECT_EQ(bbs_after.size(), 4);
   EXPECT_EQ(bbs_after[3], bb4_ptr);
@@ -1052,40 +1052,40 @@ TEST(ValueTest, FunctionBasicBlockTest) {
 TEST(ValueTest, FunctionArgumentTest) {
   Int32Type i32_type;
   Int8Type i8_type;
-  
+
   // 创建函数类型：i32 (i32, i8)
   std::vector<Type *> param_types = {&i32_type, &i8_type};
   FunctionType func_type(&i32_type, param_types);
-  
+
   // 创建函数
   Function function("test_func", &func_type, nullptr);
-  
+
   // 测试添加参数
   auto arg1 = std::make_unique<Argument>("a", &i32_type, &function);
   auto arg1_ptr = arg1.get();
   function.addArgument(std::move(arg1));
-  
+
   auto arg2 = std::make_unique<Argument>("b", &i8_type, &function);
   auto arg2_ptr = arg2.get();
   function.addArgument(std::move(arg2));
-  
+
   // 测试获取参数列表
   const auto &args = function.getArguments();
   EXPECT_EQ(args.size(), 2);
   EXPECT_EQ(args[0], arg1_ptr);
   EXPECT_EQ(args[1], arg2_ptr);
-  
+
   // 测试根据索引获取参数
   EXPECT_EQ(function.getArgByIndex(0), arg1_ptr);
   EXPECT_EQ(function.getArgByIndex(1), arg2_ptr);
-  EXPECT_EQ(function.getArgByIndex(2), nullptr); // 索引超出范围
+  EXPECT_EQ(function.getArgByIndex(2), nullptr);   // 索引超出范围
   EXPECT_EQ(function.getArgByIndex(100), nullptr); // 索引超出范围
-  
+
   // 测试参数属性
   EXPECT_EQ(arg1_ptr->getName(), "a");
   EXPECT_EQ(arg1_ptr->getType(), &i32_type);
   EXPECT_EQ(arg1_ptr->getParent(), &function);
-  
+
   EXPECT_EQ(arg2_ptr->getName(), "b");
   EXPECT_EQ(arg2_ptr->getType(), &i8_type);
   EXPECT_EQ(arg2_ptr->getParent(), &function);
@@ -1095,67 +1095,67 @@ TEST(ValueTest, FunctionArgumentTest) {
 TEST(ValueTest, FunctionSetArgumentsTest) {
   Int32Type i32_type;
   Int8Type i8_type;
-  
+
   // 创建函数类型：i32 (i32, i8)
   std::vector<Type *> param_types = {&i32_type, &i8_type};
   FunctionType func_type(&i32_type, param_types);
-  
+
   // 创建函数
   Function function("test_func", &func_type, nullptr);
-  
+
   // 创建参数列表
   std::vector<std::unique_ptr<Argument>> args;
   args.push_back(std::make_unique<Argument>("a", &i32_type, &function));
   args.push_back(std::make_unique<Argument>("b", &i8_type, &function));
-  
+
   // 保存参数指针以便后续验证
   Argument *arg1_ptr = args[0].get();
   Argument *arg2_ptr = args[1].get();
-  
+
   // 测试设置参数列表
   function.setArguments(std::move(args));
-  
+
   // 测试获取参数列表
   const auto &function_args = function.getArguments();
   EXPECT_EQ(function_args.size(), 2);
   EXPECT_EQ(function_args[0], arg1_ptr);
   EXPECT_EQ(function_args[1], arg2_ptr);
-  
+
   // 测试根据索引获取参数
   EXPECT_EQ(function.getArgByIndex(0), arg1_ptr);
   EXPECT_EQ(function.getArgByIndex(1), arg2_ptr);
   EXPECT_EQ(function.getArgByIndex(2), nullptr); // 索引超出范围
-  
+
   // 测试参数属性
   EXPECT_EQ(arg1_ptr->getName(), "a");
   EXPECT_EQ(arg1_ptr->getType(), &i32_type);
   EXPECT_EQ(arg1_ptr->getParent(), &function);
-  
+
   EXPECT_EQ(arg2_ptr->getName(), "b");
   EXPECT_EQ(arg2_ptr->getType(), &i8_type);
   EXPECT_EQ(arg2_ptr->getParent(), &function);
-  
+
   // 测试替换参数列表
   std::vector<std::unique_ptr<Argument>> new_args;
   new_args.push_back(std::make_unique<Argument>("x", &i32_type, &function));
   new_args.push_back(std::make_unique<Argument>("y", &i8_type, &function));
   new_args.push_back(std::make_unique<Argument>("z", &i32_type, &function));
-  
+
   // 保存新参数指针
   Argument *new_arg1_ptr = new_args[0].get();
   Argument *new_arg2_ptr = new_args[1].get();
   Argument *new_arg3_ptr = new_args[2].get();
-  
+
   // 设置新的参数列表
   function.setArguments(std::move(new_args));
-  
+
   // 验证新参数列表
   const auto &new_function_args = function.getArguments();
   EXPECT_EQ(new_function_args.size(), 3);
   EXPECT_EQ(new_function_args[0], new_arg1_ptr);
   EXPECT_EQ(new_function_args[1], new_arg2_ptr);
   EXPECT_EQ(new_function_args[2], new_arg3_ptr);
-  
+
   // 测试根据索引获取新参数
   EXPECT_EQ(function.getArgByIndex(0), new_arg1_ptr);
   EXPECT_EQ(function.getArgByIndex(1), new_arg2_ptr);
@@ -1167,14 +1167,14 @@ TEST(ValueTest, FunctionSetArgumentsTest) {
 TEST(ValueTest, FunctionPrintTest) {
   Int32Type i32_type;
   Int8Type i8_type;
-  
+
   // 创建函数类型：i32 (i32, i8)
   std::vector<Type *> param_types = {&i32_type, &i8_type};
   FunctionType func_type(&i32_type, param_types);
-  
+
   // 创建函数
   Function function("test_func", &func_type, nullptr);
-  
+
   // 测试未定义函数的打印
   std::string print_result = function.print();
   EXPECT_TRUE(print_result.find("declare") != std::string::npos);
@@ -1182,13 +1182,13 @@ TEST(ValueTest, FunctionPrintTest) {
   EXPECT_TRUE(print_result.find("@test_func") != std::string::npos);
   EXPECT_TRUE(print_result.find("i32") != std::string::npos);
   EXPECT_TRUE(print_result.find("i8") != std::string::npos);
-  
+
   // 添加参数
   auto arg1 = std::make_unique<Argument>("a", &i32_type, &function);
   auto arg2 = std::make_unique<Argument>("b", &i8_type, &function);
   function.addArgument(std::move(arg1));
   function.addArgument(std::move(arg2));
-  
+
   // 测试带参数函数的打印
   std::string print_result_with_args = function.print();
   EXPECT_TRUE(print_result_with_args.find("declare") != std::string::npos);
@@ -1196,18 +1196,19 @@ TEST(ValueTest, FunctionPrintTest) {
   EXPECT_TRUE(print_result_with_args.find("@test_func") != std::string::npos);
   EXPECT_TRUE(print_result_with_args.find("i32 %a") != std::string::npos);
   EXPECT_TRUE(print_result_with_args.find("i8 %b") != std::string::npos);
-  
+
   // 添加基本块
   BasicBlock *bb = function.createBasicBlock("entry");
-  
+
   // 创建返回指令
   ConstantInt const_val(&i32_type, 42);
   auto ret_inst = std::make_unique<ReturnInst>(&const_val);
   bb->addInstruction(std::move(ret_inst));
-  
+
   // 测试完整函数的打印（添加基本块后，函数自动设置为已定义状态）
   std::string print_result_full = function.print();
-  EXPECT_TRUE(print_result_full.find("define") != std::string::npos); // 现在是define
+  EXPECT_TRUE(print_result_full.find("define") !=
+              std::string::npos); // 现在是define
   EXPECT_TRUE(print_result_full.find("i32") != std::string::npos);
   EXPECT_TRUE(print_result_full.find("@test_func") != std::string::npos);
   EXPECT_TRUE(print_result_full.find("i32 %a") != std::string::npos);
@@ -1223,23 +1224,23 @@ TEST(ValueTest, FunctionTypeTest) {
   Int32Type i32_type;
   Int8Type i8_type;
   VoidType void_type;
-  
+
   // 测试返回i32的函数类型
   std::vector<Type *> param_types1 = {&i32_type, &i8_type};
   FunctionType func_type1(&i32_type, param_types1);
   Function function1("test_func1", &func_type1, nullptr);
-  
+
   EXPECT_EQ(function1.getType(), &func_type1);
   EXPECT_EQ(function1.getType()->getReturnType(), &i32_type);
   EXPECT_EQ(function1.getType()->getNumParams(), 2);
   EXPECT_EQ(function1.getType()->getParamType(0), &i32_type);
   EXPECT_EQ(function1.getType()->getParamType(1), &i8_type);
-  
+
   // 测试返回void的函数类型
   std::vector<Type *> param_types2 = {};
   FunctionType func_type2(&void_type, param_types2);
   Function function2("test_func2", &func_type2, nullptr);
-  
+
   EXPECT_EQ(function2.getType(), &func_type2);
   EXPECT_EQ(function2.getType()->getReturnType(), &void_type);
   EXPECT_EQ(function2.getType()->getNumParams(), 0);

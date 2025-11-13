@@ -14,37 +14,37 @@ auto LLVMContext::getVoidTy() -> VoidType * {
 auto LLVMContext::getInt32Ty() -> Int32Type * {
   auto it = integer_types_.find(32);
   if (it != integer_types_.end()) {
-    return static_cast<Int32Type*>(it->second.get());
+    return static_cast<Int32Type *>(it->second.get());
   }
 
   auto type = std::make_unique<Int32Type>();
   auto *result = type.get();
   integer_types_[32] = std::move(type);
-  return static_cast<Int32Type*>(result);
+  return static_cast<Int32Type *>(result);
 }
 
 auto LLVMContext::getInt8Ty() -> Int8Type * {
   auto it = integer_types_.find(8);
   if (it != integer_types_.end()) {
-    return static_cast<Int8Type*>(it->second.get());
+    return static_cast<Int8Type *>(it->second.get());
   }
 
   auto type = std::make_unique<Int8Type>();
   auto *result = type.get();
   integer_types_[8] = std::move(type);
-  return static_cast<Int8Type*>(result);
+  return static_cast<Int8Type *>(result);
 }
 
 auto LLVMContext::getInt1Ty() -> Int1Type * {
   auto it = integer_types_.find(1);
   if (it != integer_types_.end()) {
-    return static_cast<Int1Type*>(it->second.get());
+    return static_cast<Int1Type *>(it->second.get());
   }
 
   auto type = std::make_unique<Int1Type>();
   auto *result = type.get();
   integer_types_[1] = std::move(type);
-  return static_cast<Int1Type*>(result);
+  return static_cast<Int1Type *>(result);
 }
 
 auto LLVMContext::getStructType(const std::string &name) -> StructType * {
@@ -96,7 +96,8 @@ auto LLVMContext::getPointerType() -> PointerType * {
   return pointer_type_.get();
 }
 
-auto LLVMContext::getIntConstant(IntegerType* type, int64_t value) -> ConstantInt* {
+auto LLVMContext::getIntConstant(IntegerType *type, int64_t value)
+    -> ConstantInt * {
   auto key = std::make_pair(type, value);
   auto it = int_constants_.find(key);
   if (it != int_constants_.end()) {
@@ -104,7 +105,7 @@ auto LLVMContext::getIntConstant(IntegerType* type, int64_t value) -> ConstantIn
   }
 
   auto constant = std::make_unique<ConstantInt>(type, value);
-  auto* result = constant.get();
+  auto *result = constant.get();
   int_constants_[key] = std::move(constant);
   return result;
 }
