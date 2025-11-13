@@ -4,40 +4,47 @@
 
 namespace llvm {
 
-auto LLVMContext::getInt32Ty() -> IntegerType * {
+auto LLVMContext::getVoidTy() -> VoidType * {
+  if (!void_type_) {
+    void_type_ = std::make_unique<VoidType>();
+  }
+  return void_type_.get();
+}
+
+auto LLVMContext::getInt32Ty() -> Int32Type * {
   auto it = integer_types_.find(32);
   if (it != integer_types_.end()) {
-    return it->second.get();
+    return static_cast<Int32Type*>(it->second.get());
   }
 
   auto type = std::make_unique<Int32Type>();
   auto *result = type.get();
   integer_types_[32] = std::move(type);
-  return result;
+  return static_cast<Int32Type*>(result);
 }
 
-auto LLVMContext::getInt8Ty() -> IntegerType * {
+auto LLVMContext::getInt8Ty() -> Int8Type * {
   auto it = integer_types_.find(8);
   if (it != integer_types_.end()) {
-    return it->second.get();
+    return static_cast<Int8Type*>(it->second.get());
   }
 
   auto type = std::make_unique<Int8Type>();
   auto *result = type.get();
   integer_types_[8] = std::move(type);
-  return result;
+  return static_cast<Int8Type*>(result);
 }
 
-auto LLVMContext::getInt1Ty() -> IntegerType * {
+auto LLVMContext::getInt1Ty() -> Int1Type * {
   auto it = integer_types_.find(1);
   if (it != integer_types_.end()) {
-    return it->second.get();
+    return static_cast<Int1Type*>(it->second.get());
   }
 
   auto type = std::make_unique<Int1Type>();
   auto *result = type.get();
   integer_types_[1] = std::move(type);
-  return result;
+  return static_cast<Int1Type*>(result);
 }
 
 auto LLVMContext::getStructType(const std::string &name) -> StructType * {

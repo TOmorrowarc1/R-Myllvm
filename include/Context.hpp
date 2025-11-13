@@ -12,12 +12,15 @@ namespace llvm {
 
 // 前向声明
 class Type;
+class VoidType;
 class IntegerType;
+class Int32Type;
+class Int8Type;
+class Int1Type;
 class StructType;
 class ArrayType;
 class FunctionType;
 class PointerType;
-class IntegerType;
 class ConstantInt;
 
 class FuncComparator {
@@ -39,14 +42,17 @@ public:
   // 构造函数
   LLVMContext() = default;
 
+  // 获取或创建void类型对象
+  auto getVoidTy() -> VoidType *;
+
   // 获取或创建32位整数类型对象
-  auto getInt32Ty() -> IntegerType *;
+  auto getInt32Ty() -> Int32Type *;
 
   // 获取或创建8位整数类型对象
-  auto getInt8Ty() -> IntegerType *;
+  auto getInt8Ty() -> Int8Type *;
 
   // 获取或创建1位整数类型对象
-  auto getInt1Ty() -> IntegerType *;
+  auto getInt1Ty() -> Int1Type *;
 
   // 获取或创建结构体类型对象
   auto getStructType(const std::string &name) -> StructType *;
@@ -66,6 +72,9 @@ public:
   auto getIntConstant(IntegerType *type, int64_t value) -> ConstantInt *;
 
 private:
+  // void类型单例对象
+  std::unique_ptr<VoidType> void_type_;
+
   // 存储已创建的整数类对象，避免重复创建，通过位数索引
   std::map<int32_t, std::unique_ptr<IntegerType>> integer_types_;
 

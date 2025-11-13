@@ -1,5 +1,5 @@
 # 工作组件类及其接口
-以下三个类专注于对 Type 与 Value 类的管理与生成，构成 LLVM IR 生成器的核心工作组件。
+以下三个类负责创建并管理 Type 与 Value 类，构成 LLVM IR 生成器的核心工作组件。
 
 ### 1. LLVMContext
 该类型代指 LLVM 上下文，用于管理 LLVM IR 中类型与常量的创建和销毁。（本项目只使用整数常量）
@@ -18,9 +18,10 @@
   
 接口：
 - 构造函数：空的。
-- `auto getInt32Ty() -> Type*` - 获取或创建32位整数类型对象。
-- `auto getInt8Ty() -> Type*` - 获取或创建8位整数类型对象。
-- `auto getInt1Ty() -> Type*` - 获取或创建1位整数类型对象。
+- `auto getVoidTy() -> VoidType*` - 获取或创建void类型对象。
+- `auto getInt32Ty() -> Int32Type*` - 获取或创建32位整数类型对象。
+- `auto getInt8Ty() -> Int8Type*` - 获取或创建8位整数类型对象。
+- `auto getInt1Ty() -> Int1Type*` - 获取或创建1位整数类型对象。
 - `auto getStructType(const std::string& name)-> StructType*` - 获取或创建结构体类型对象。
 - `auto getArrayType(Type* element_type, int32_t length)-> ArrayType*` - 获取或创建数组类型对象。
 - `auto getFunctionType(Type* return_type, const vector<Type*>& param_types) -> FunctionType*` - 获取或创建函数类型对象。
