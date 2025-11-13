@@ -29,7 +29,7 @@
 
 
 ### 2. Module
-该类型指代编译单元，最大的 LLVM IR 代码容器。其内部拥有多个 Function 与 GlobalVariable 的所有权，同时 Module 承担创建 function 与全局变量的职责。
+该类型指代编译单元，作为单个文件的 LLVM IR 代码容器。其内部拥有多个 Function 与 GlobalVariable 的所有权，同时 Module 承担创建 function 与全局变量的职责。
 
 - **成员**:
   - `std::string module_name_` - 模块名称。
@@ -46,7 +46,10 @@
   - `void addGlobalVariable(const std::string& name, std::unque_ptr<GlobalVariable>&& global_var)` - 向模块中添加全局变量对象。
   - `void getOrCreateGlobalVariable(const std::string& name, Type* var_type, bool is_constant, llvm::Constant* init_value)` - 获取或创建全局变量对象。
   - `auto getContext() -> LLVMContext*` - 获取所属上下文指针。
-  - `auto print() -> std::string` - 打印模块内所有函数与全局变量的信息。
+  - `auto print() -> std::string` - 打印模块内所有函数与全局变量的信息，实现方式如下：
+    - 遍历 global_vars_，调用每个 GlobalVariable 的 print 方法，拼接结果字符串。
+    - 遍历 functions_，调用每个 Function 的 print 方法，拼接结果字符串。
+    - 返回最终拼接的字符串。
 
 ### 3. IRBuilder
 该类型为 LLVM IR 指令构建器，使用 Builder 模式生成并在对应位置插入指令。换言之，在 Module-Function-BB-Instruction 的层级结构中，只有 Instruction的创建与插入由 IRBuilder 负责，余下都交给对应父类负责。（考虑到 BasicBlock 设计问题，IRBuilder 暂时只能将指令插入到 BasicBlock 末尾）

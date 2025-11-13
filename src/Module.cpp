@@ -60,19 +60,21 @@ auto Module::getOrCreateGlobalVariable(const std::string &name, Type *var_type, 
 auto Module::getContext() -> LLVMContext * { return context_; }
 
 auto Module::print() -> std::string {
-  std::string result = "Module: " + module_name_ + "\n\n";
+  std::string result;
 
   // 打印全局变量
-  result += "Global Variables:\n";
   for (const auto &[name, global_var] : global_vars_) {
-    result += "  " + global_var->print() + "\n";
+    result += global_var->print() + "\n";
   }
-  result += "\n";
+  
+  // 如果有全局变量，添加一个空行分隔
+  if (!global_vars_.empty() && !functions_.empty()) {
+    result += "\n";
+  }
 
   // 打印函数
-  result += "Functions:\n";
   for (const auto &[name, function] : functions_) {
-    result += "  " + function->print() + "\n";
+    result += function->print() + "\n\n";
   }
 
   return result;
