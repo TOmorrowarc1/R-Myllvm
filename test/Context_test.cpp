@@ -59,7 +59,7 @@ TEST(ContextTest, StructTypeTest) {
     // 创建结构体类型
     StructType* struct_type1 = context.getStructType("MyStruct");
     ASSERT_NE(struct_type1, nullptr);
-    EXPECT_EQ(struct_type1->getName(), "MyStruct");
+    EXPECT_EQ(struct_type1->getName(), "%struct.MyStruct");
     EXPECT_TRUE(struct_type1->isAggregateTy());
     
     // 相同名称的结构体类型应该返回同一个对象
@@ -70,7 +70,7 @@ TEST(ContextTest, StructTypeTest) {
     StructType* struct_type3 = context.getStructType("DifferentStruct");
     ASSERT_NE(struct_type3, nullptr);
     EXPECT_NE(struct_type1, struct_type3);
-    EXPECT_EQ(struct_type3->getName(), "DifferentStruct");
+    EXPECT_EQ(struct_type3->getName(), "%struct.DifferentStruct");
 }
 
 // 测试数组类型创建
@@ -219,6 +219,199 @@ TEST(ContextTest, ComplexScenarioTest) {
     ASSERT_NE(const_int, nullptr);
     EXPECT_EQ(const_int->getType(), i32_type);
     EXPECT_EQ(const_int->getValue(), 12345);
+}
+
+// 测试复合类型（嵌套结构体）
+TEST(ContextTest, NestedStructTypeTest) {
+    LLVMContext context;
+    
+    // 创建基础结构体
+    StructType* inner_struct = context.getStructType("InnerStruct");
+    ASSERT_NE(inner_struct, nullptr);
+    
+    Type* i32_type = context.getInt32Ty();
+    Type* i8_type = context.getInt8Ty();
+    std::vector<Type*> inner_elements = {i32_type, i8_type};
+    inner_struct->setBody(inner_elements);
+    
+    // 创建包含嵌套结构体的外层结构体
+    StructType* outer_struct = context.getStructType("OuterStruct");
+    ASSERT_NE(outer_struct, nullptr);
+    
+    Type* i1_type = context.getInt1Ty();
+    std::vector<Type*> outer_elements = {i1_type, inner_struct, i32_type};
+    outer_struct->setBody(outer_elements);
+    
+    // 验证嵌套结构体的属性
+    EXPECT_EQ(inner_struct->getNumElements(), 2);
+    EXPECT_EQ(inner_struct->getElementType(0), i32_type);
+    EXPECT_EQ(inner_struct->getElementType(1), i8_type);
+    
+    // 验证外层结构体的属性
+    EXPECT_EQ(outer_struct->getNumElements(), 3);
+    EXPECT_EQ(outer_struct->getElementType(0), i1_type);
+    EXPECT_EQ(outer_struct->getElementType(1), inner_struct);
+    EXPECT_EQ(outer_struct->getElementType(2), i32_type);
+    
+    // 验证结构体名称
+    EXPECT_EQ(inner_struct->getName(), "%struct.InnerStruct");
+    EXPECT_EQ(outer_struct->getName(), "%struct.OuterStruct");
+    
+    // 验证结构体打印
+    EXPECT_EQ(inner_struct->print(), "%struct.InnerStruct");
+    EXPECT_EQ(outer_struct->print(), "%struct.OuterStruct");
+}
+
+// 测试多维数组和结构体数组
+TEST(ContextTest, ComplexArrayTypeTest) {
+    LLVMContext context;
+    
+    // 获取基础类型
+    Type* i32_type = context.getInt32Ty();
+    Type* i8_type = context.getInt8Ty();
+    
+    // 创建一维数组
+    ArrayType* array1d = context.getArrayType(i32_type, 5);
+    ASSERT_NE(array1d, nullptr);
+    EXPECT_EQ(array1d->getElementType(), i32_type);
+    EXPECT_EQ(array1d->getNumElements(), 5);
+    EXPECT_EQ(array1d->print(), "[i32 x 5]");
+    
+    // 创建二维数组（数组 of 数组）
+    ArrayType* array2d = context.getArrayType(array1d, 3);
+    ASSERT_NE(array2d, nullptr);
+    EXPECT_EQ(array2d->getElementType(), array1d);
+    EXPECT_EQ(array2d->getNumElements(), 3);
+    EXPECT_EQ(array2d->print(), "[[i32 x 5] x 3]");
+    
+    // 创建三维数组
+    ArrayType* array3d = context.getArrayType(array2d, 2);
+    ASSERT_NE(array3d, nullptr);
+    EXPECT_EQ(array3d->getElementType(), array2d);
+    EXPECT_EQ(array3d->getNumElements(), 2);
+    EXPECT_EQ(array3d->print(), "[[[i32 x 5] x 3] x 2]");
+    
+    // 验证数组缓存机制
+    ArrayType* array1d_again = context.getArrayType(i32_type, 5);
+    EXPECT_EQ(array1d, array1d_again);
+    
+    ArrayType* array2d_again = context.getArrayType(array1d, 3);
+    EXPECT_EQ(array2d, array2d_again);
+    
+    // 创建不同类型的数组
+    ArrayType* i8_array = context.getArrayType(i8_type, 10);
+    ASSERT_NE(i8_array, nullptr);
+    EXPECT_EQ(i8_array->getElementType(), i8_type);
+    EXPECT_EQ(i8_array->getNumElements(), 10);
+    EXPECT_EQ(i8_array->print(), "[i8 x 10]");
+    
+    // 验证不同类型的数组不相同
+    EXPECT_NE(array1d, i8_array);
+}
+
+// 测试结构体数组
+TEST(ContextTest, StructArrayTypeTest) {
+    LLVMContext context;
+    
+    // 创建结构体类型
+    StructType* point_struct = context.getStructType("Point");
+    ASSERT_NE(point_struct, nullptr);
+    
+    Type* i32_type = context.getInt32Ty();
+    std::vector<Type*> point_elements = {i32_type, i32_type}; // x, y coordinates
+    point_struct->setBody(point_elements);
+    
+    // 创建结构体数组
+    ArrayType* point_array = context.getArrayType(point_struct, 10);
+    ASSERT_NE(point_array, nullptr);
+    EXPECT_EQ(point_array->getElementType(), point_struct);
+    EXPECT_EQ(point_array->getNumElements(), 10);
+    EXPECT_EQ(point_array->print(), "[%struct.Point x 10]");
+    
+    // 创建更复杂的结构体数组
+    StructType* line_struct = context.getStructType("Line");
+    ASSERT_NE(line_struct, nullptr);
+    
+    std::vector<Type*> line_elements = {point_struct, point_struct}; // start, end points
+    line_struct->setBody(line_elements);
+    
+    ArrayType* line_array = context.getArrayType(line_struct, 5);
+    ASSERT_NE(line_array, nullptr);
+    EXPECT_EQ(line_array->getElementType(), line_struct);
+    EXPECT_EQ(line_array->getNumElements(), 5);
+    EXPECT_EQ(line_array->print(), "[%struct.Line x 5]");
+    
+    // 验证结构体定义打印
+    EXPECT_EQ(point_struct->printDef(), "%struct.Point = type { i32, i32 }");
+    EXPECT_EQ(line_struct->printDef(), "%struct.Line = type { %struct.Point, %struct.Point }");
+}
+
+// 测试复合类型与数组的复杂组合
+TEST(ContextTest, ComplexCompositeTypeTest) {
+    LLVMContext context;
+    
+    // 创建基础类型
+    Type* i32_type = context.getInt32Ty();
+    Type* i8_type = context.getInt8Ty();
+    Type* i1_type = context.getInt1Ty();
+    
+    // 创建简单结构体
+    StructType* simple_struct = context.getStructType("Simple");
+    std::vector<Type*> simple_elements = {i32_type, i8_type};
+    simple_struct->setBody(simple_elements);
+    
+    // 创建包含数组的结构体
+    StructType* array_struct = context.getStructType("ArrayContainer");
+    ArrayType* i32_array = context.getArrayType(i32_type, 4);
+    std::vector<Type*> array_elements = {i1_type, i32_array, i8_type};
+    array_struct->setBody(array_elements);
+    
+    // 创建结构体数组
+    ArrayType* struct_array = context.getArrayType(simple_struct, 3);
+    
+    // 创建包含结构体数组的复杂结构体
+    StructType* complex_struct = context.getStructType("Complex");
+    std::vector<Type*> complex_elements = {i32_type, struct_array, array_struct};
+    complex_struct->setBody(complex_elements);
+    
+    // 验证所有类型都正确创建
+    ASSERT_NE(simple_struct, nullptr);
+    ASSERT_NE(array_struct, nullptr);
+    ASSERT_NE(i32_array, nullptr);
+    ASSERT_NE(struct_array, nullptr);
+    ASSERT_NE(complex_struct, nullptr);
+    
+    // 验证类型属性
+    EXPECT_EQ(simple_struct->getNumElements(), 2);
+    EXPECT_EQ(array_struct->getNumElements(), 3);
+    EXPECT_EQ(complex_struct->getNumElements(), 3);
+    
+    EXPECT_EQ(array_struct->getElementType(1), i32_array);
+    EXPECT_EQ(complex_struct->getElementType(1), struct_array);
+    EXPECT_EQ(complex_struct->getElementType(2), array_struct);
+    
+    // 验证数组属性
+    EXPECT_EQ(i32_array->getElementType(), i32_type);
+    EXPECT_EQ(i32_array->getNumElements(), 4);
+    EXPECT_EQ(struct_array->getElementType(), simple_struct);
+    EXPECT_EQ(struct_array->getNumElements(), 3);
+    
+    // 验证打印输出
+    EXPECT_EQ(simple_struct->printDef(), "%struct.Simple = type { i32, i8 }");
+    EXPECT_EQ(array_struct->printDef(), "%struct.ArrayContainer = type { i1, [i32 x 4], i8 }");
+    EXPECT_EQ(i32_array->print(), "[i32 x 4]");
+    EXPECT_EQ(struct_array->print(), "[%struct.Simple x 3]");
+    EXPECT_EQ(complex_struct->printDef(), "%struct.Complex = type { i32, [%struct.Simple x 3], %struct.ArrayContainer }");
+    
+    // 创建使用这些复杂类型的函数类型
+    std::vector<Type*> func_params = {complex_struct, struct_array, i32_type};
+    FunctionType* complex_func_type = context.getFunctionType(complex_struct, func_params);
+    ASSERT_NE(complex_func_type, nullptr);
+    EXPECT_EQ(complex_func_type->getReturnType(), complex_struct);
+    EXPECT_EQ(complex_func_type->getNumParams(), 3);
+    EXPECT_EQ(complex_func_type->getParamType(0), complex_struct);
+    EXPECT_EQ(complex_func_type->getParamType(1), struct_array);
+    EXPECT_EQ(complex_func_type->getParamType(2), i32_type);
 }
 
 } // namespace llvm
