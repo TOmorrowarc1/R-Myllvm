@@ -53,15 +53,13 @@ void Function::addBasicBlock(std::unique_ptr<BasicBlock> &&bb) {
 }
 
 auto Function::createBasicBlock(const std::string &name) -> BasicBlock * {
-  static std::unordered_map<std::string, int> name_counter;
-
   is_defined_ = true;
   std::string actual_name = name;
-  if (name_counter.find(name) != name_counter.end()) {
-    name_counter[name]++;
-    actual_name = name + "." + std::to_string(name_counter[name]);
+  if (bb_name_map_.find(name) != bb_name_map_.end()) {
+    bb_name_map_[name]++;
+    actual_name = name + "." + std::to_string(bb_name_map_[name]);
   } else {
-    name_counter[name] = 0;
+    bb_name_map_[name] = 0;
   }
 
   auto bb = std::make_unique<BasicBlock>(actual_name, this);

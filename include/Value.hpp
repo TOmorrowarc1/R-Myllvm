@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -82,12 +83,14 @@ private:
   FunctionType *func_type_; // 函数类型
   std::vector<std::unique_ptr<BasicBlock>>
       basic_blocks_; // 函数体内的基本块列表
+  std::unordered_map<std::string, size_t> bb_name_map_; // 基本块名称到索引的映射，用于防止重名
   std::vector<std::unique_ptr<Argument>> arguments_; // 函数参数列表
   bool is_defined_; // 函数是否已定义（有函数体）
   Module *parent_;  // 所属模块
 
 public:
   Function(const std::string &name, FunctionType *func_type, Module *parent);
+  ~Function() override = default;
 
   void addBasicBlock(std::unique_ptr<BasicBlock> &&bb);
   auto createBasicBlock(const std::string &name) -> BasicBlock *;

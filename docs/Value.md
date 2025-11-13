@@ -59,7 +59,7 @@ llvm::Value (抽象基类)
 该类表示一个全局变量，包含变量名称、类型和（可能存在的）初始值等信息。
 
 成员：
-- `std::string name_` - 变量名称`
+- `std::string name_` - 变量名称
 - `Type* type_` - 变量类型
 - `Constant* initial_value_` - 变量初始值，可以为空表示未初始化
   
@@ -77,6 +77,7 @@ llvm::Value (抽象基类)
 - `std::string name_` - 函数名称
 - `FunctionType* func_type_` - 函数类型
 - `std::vector<std::unique_ptr<BasicBlock>> basic_blocks_` - 函数体内的基本块列表
+- `std::unordered_map<std::string, size_t> bb_name_map_` - 基本块名称到索引的映射，用于防止重名
 - `std::vector<std::unique_ptr<Argument>> arguments_` - 函数参数列表
 - `bool is_defined_` - 函数是否已定义（有函数体）
 - `Module* parent_` - 所属模块
@@ -84,7 +85,7 @@ llvm::Value (抽象基类)
 接口：
 - `Function(const std::string& name, FunctionType* func_type, Module* parent)` - 构造函数
 - `void addBasicBlock(std::unique_ptr<BasicBlock>&& bb)` - 向函数添加基本块
-- `auto createBasicBlock(const std::string& name) -> BasicBlock*` - 创建并添加基本块，注意，为了使基本块不重名需要在内部添加一个static变量，输出".1"等字符串作为后缀。
+- `auto createBasicBlock(const std::string& name) -> BasicBlock*` - 创建并添加基本块，注意，为了使基本块不重名需要使用 bb_name_map_，输出".1"等字符串作为后缀。
 - `const std::vector<BasicBlock*>& getBasicBlocks() const` - 获取函数体内的基本块列表
 - `auto getBBbyIndex(size_t index) const -> BasicBlock*` - 根据索引获取基本块
 - `void addArgument(std::unique_ptr<Argument>&& arg)` - 向函数添加参数
