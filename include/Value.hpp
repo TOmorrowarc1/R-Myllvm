@@ -92,16 +92,17 @@ public:
   void addBasicBlock(std::unique_ptr<BasicBlock> &&bb);
   auto createBasicBlock(const std::string &name) -> BasicBlock *;
   const std::vector<BasicBlock *> getBasicBlocks() const;
-  auto getBBbyIndex(int64_t index) const -> BasicBlock *;
+  auto getBBbyIndex(size_t index) const -> BasicBlock *;
 
   void addArgument(std::unique_ptr<Argument> &&arg);
+  void setArguments(std::vector<std::unique_ptr<Argument>> &&args);
   const std::vector<Argument *> getArguments() const;
-  auto getArgByIndex(int64_t index) const -> Argument *;
+  auto getArgByIndex(size_t index) const -> Argument *;
 
   auto isDefined() const -> bool;
-  auto getType() const -> Type * override;
-  auto getName() const -> std::string override;
+  auto getType() const -> FunctionType * override;
   auto getParent() const -> Module *;
+  auto getName() const -> std::string override;
   auto print() const -> std::string override;
 };
 

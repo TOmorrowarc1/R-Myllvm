@@ -86,10 +86,11 @@ llvm::Value (抽象基类)
 - `void addBasicBlock(std::unique_ptr<BasicBlock>&& bb)` - 向函数添加基本块
 - `auto createBasicBlock(const std::string& name) -> BasicBlock*` - 创建并添加基本块，注意，为了使基本块不重名需要在内部添加一个static变量，输出".1"等字符串作为后缀。
 - `const std::vector<BasicBlock*>& getBasicBlocks() const` - 获取函数体内的基本块列表
-- `auto getBBbyIndex(int64_t index) const -> BasicBlock*` - 根据索引获取基本块
+- `auto getBBbyIndex(size_t index) const -> BasicBlock*` - 根据索引获取基本块
 - `void addArgument(std::unique_ptr<Argument>&& arg)` - 向函数添加参数
+- `void setArguments(std::vector<std::unique_ptr<Argument>>&& args)` - 设置函数参数列表
 - `const std::vector<Argument*>& getArguments() const` - 获取函数参数列表
-- `auto getArgByIndex(int64_t index) const -> Argument*` - 根据索引获取函数参数
+- `auto getArgByIndex(size_t index) const -> Argument*` - 根据索引获取函数参数
 - `auto isDefined() const -> bool` - 检查函数是否已定义
 - `auto getType() const -> Type*` - 获取函数类型
 - `auto getName() const -> std::string` - 获取函数名称

@@ -55,6 +55,7 @@ void Function::addBasicBlock(std::unique_ptr<BasicBlock> &&bb) {
 auto Function::createBasicBlock(const std::string &name) -> BasicBlock * {
   static std::unordered_map<std::string, int> name_counter;
 
+  is_defined_ = true;
   std::string actual_name = name;
   if (name_counter.find(name) != name_counter.end()) {
     name_counter[name]++;
@@ -77,8 +78,8 @@ const std::vector<BasicBlock *> Function::getBasicBlocks() const {
   return result;
 }
 
-auto Function::getBBbyIndex(int64_t index) const -> BasicBlock * {
-  if (index < 0 || index >= static_cast<int64_t>(basic_blocks_.size())) {
+auto Function::getBBbyIndex(size_t index) const -> BasicBlock * {
+  if (index < 0 || index >= basic_blocks_.size()) {
     return nullptr;
   }
   return basic_blocks_[index].get();
@@ -86,6 +87,13 @@ auto Function::getBBbyIndex(int64_t index) const -> BasicBlock * {
 
 void Function::addArgument(std::unique_ptr<Argument> &&arg) {
   arguments_.push_back(std::move(arg));
+}
+
+void Function::setArguments(std::vector<std::unique_ptr<Argument>> &&args) {
+  arguments_.clear();
+  for (auto &arg : args) {
+    arguments_.push_back(std::move(arg));
+  }
 }
 
 const std::vector<Argument *> Function::getArguments() const {
@@ -96,8 +104,8 @@ const std::vector<Argument *> Function::getArguments() const {
   return result;
 }
 
-auto Function::getArgByIndex(int64_t index) const -> Argument * {
-  if (index < 0 || index >= static_cast<int64_t>(arguments_.size())) {
+auto Function::getArgByIndex(size_t index) const -> Argument * {
+  if (index < 0 || index >= arguments_.size()) {
     return nullptr;
   }
   return arguments_[index].get();
@@ -105,15 +113,15 @@ auto Function::getArgByIndex(int64_t index) const -> Argument * {
 
 auto Function::isDefined() const -> bool { return is_defined_; }
 
-auto Function::getType() const -> Type * { return func_type_; }
+auto Function::getType() const -> FunctionType * { return func_type_; }
 
 auto Function::getName() const -> std::string { return name_; }
 
 auto Function::getParent() const -> Module * { return parent_; }
 
 auto Function::print() const -> std::string {
-  std::string result =
-      "define " + func_type_->getReturnType()->print() + " @" + name_ + "(";
+  std::string result = is_defined_ ? "define " : "declare ";
+  result += func_type_->getReturnType()->print() + " @" + name_ + "(";
 
   const auto &param_types = func_type_->getParamTypes();
   for (size_t i = 0; i < param_types.size(); ++i) {
