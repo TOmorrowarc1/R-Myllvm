@@ -291,7 +291,7 @@ llvm::Value (抽象基类)
 - `std::vector<Value*> indices_` - 索引操作数列表
 
 接口：
-- `GetElementPtrInst(const std::string& name, Type* type, Type* base_type, Value* ptr, const std::vector<Value*>& indices)` - 构造函数，要求指针类型为指针，同时indices均为整数类型。
+- `GetElementPtrInst(const std::string& name, Type* type, Type* base_type, Value* ptr, const std::vector<Value*>& indices)` - 构造函数，要求指针类型为指针，同时indices均为整数类型，构造过程中需要检验结果类型。
 - `auto getPtr() const -> Value*` - 获取基础指针操作数
 - `auto getIndices() const -> const std::vector<Value*>&` - 获取索引操作数列表
 - `auto getType() const -> Type*` - 获取结果类型
@@ -317,7 +317,7 @@ llvm::Value (抽象基类)
 - `auto print() const -> std::string` - 打印整数常量信息。
 
 #### 5.2 结构体常量 `llvm::ConstantStruct`
-暂时不进行实现，涉及到多层复合的问题。
+// TODO: unit type 需要。
 #### 5.3 数组常量 `llvm::ConstantArray`
 暂时不必实现，同上。
 

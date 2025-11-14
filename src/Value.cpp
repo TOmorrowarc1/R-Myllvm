@@ -543,18 +543,42 @@ GetElementPtrInst::GetElementPtrInst(const std::string &name, Type *type,
                                      const std::vector<Value *> &indices)
     : name_(name), type_(type), base_type_(base_type), ptr_(ptr),
       indices_(indices) {
-  // 检查指针类型是否为指针
   if (!ptr->getType()->isPointerTy()) {
-    throw std::runtime_error(
-        "GetElementPtrInst pointer operand must be of pointer type");
+    throw std::runtime_error("GEPInst pointer operand must be of pointer type");
   }
 
   // 检查所有索引是否为整数类型
   for (auto index : indices) {
     auto *index_int_type = dynamic_cast<IntegerType *>(index->getType());
     if (!index_int_type) {
-      throw std::runtime_error(
-          "GetElementPtrInst indices must be of integer type");
+      throw std::runtime_error("GEPInst indices must be of integer type");
+    }
+  }
+
+  Type *current_type = base_type;
+  for (uint32_t i = 0; i < indices.size(); ++i) {
+    auto index = indices[i];
+    if (i != indices.size() - 1 && !current_type->isAggregateTy()) {
+      throw std::runtime_error("GEPInst index applied to non-aggregate type");
+    }
+    if (auto *const_index = dynamic_cast<ConstantInt *>(index)) {
+      size_t idx = const_index->getValue();
+      if (auto array_type = dynamic_cast<ArrayType *>(current_type)) {
+        if (idx < 0 || idx >= array_type->getNumElements()) {
+          throw std::runtime_error("GEPInst array index out of bounds");
+        }
+        current_type = array_type->getElementType();
+      } else if (auto struct_type = dynamic_cast<StructType *>(current_type)) {
+        if (idx < 0 || idx >= struct_type->getNumElements()) {
+          throw std::runtime_error("GEPInst struct index out of bounds");
+        }
+        current_type = struct_type->getElementType(idx);
+      }
+    } else {
+      if (i == 0 && dynamic_cast<StructType *>(current_type)) {
+        throw std::runtime_error("GEPInst struct first index must be constant");
+      }
+      break; // 非常量索引，停止检测。
     }
   }
 
@@ -586,12 +610,12 @@ auto GetElementPtrInst::print() const -> std::string {
 }
 
 // ConstantInt 类实现
-ConstantInt::ConstantInt(IntegerType *type, int64_t value)
+ConstantInt::ConstantInt(IntegerType *type, uint32_t value)
     : type_(type), value_(value) {}
 
 auto ConstantInt::getType() const -> Type * { return type_; }
 
-auto ConstantInt::getValue() const -> int64_t { return value_; }
+auto ConstantInt::getValue() const -> uint32_t { return value_; }
 
 auto ConstantInt::getName() const -> std::string {
   return std::to_string(value_);

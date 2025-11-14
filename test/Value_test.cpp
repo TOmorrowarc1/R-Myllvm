@@ -735,8 +735,7 @@ TEST(ValueTest, GetElementPtrInstTest) {
   // 使用AllocaInst创建指针而不是使用ConstantInt
   AllocaInst alloca_ptr("ptr", &i32_type);
   ConstantInt index1(&i32_type, 0);
-  ConstantInt index2(&i8_type, 1);
-  std::vector<Value *> indices = {&index1, &index2};
+  std::vector<Value *> indices = {&index1};
 
   GetElementPtrInst gep("result", &ptr_type, &i32_type, &alloca_ptr, indices);
 
@@ -745,16 +744,14 @@ TEST(ValueTest, GetElementPtrInstTest) {
   EXPECT_EQ(gep.getPtr(), &alloca_ptr);
 
   const auto &gep_indices = gep.getIndices();
-  EXPECT_EQ(gep_indices.size(), 2);
+  EXPECT_EQ(gep_indices.size(), 1);
   EXPECT_EQ(gep_indices[0], &index1);
-  EXPECT_EQ(gep_indices[1], &index2);
 
   // 测试操作数列表
   const auto &operands = gep.getOperands();
-  EXPECT_EQ(operands.size(), 3);
+  EXPECT_EQ(operands.size(), 2);
   EXPECT_EQ(operands[0], &alloca_ptr);
   EXPECT_EQ(operands[1], &index1);
-  EXPECT_EQ(operands[2], &index2);
 
   // 测试用户列表
   const auto &ptr_users = alloca_ptr.getUsers();
@@ -765,17 +762,12 @@ TEST(ValueTest, GetElementPtrInstTest) {
   EXPECT_EQ(index1_users.size(), 1);
   EXPECT_EQ(index1_users[0], &gep);
 
-  const auto &index2_users = index2.getUsers();
-  EXPECT_EQ(index2_users.size(), 1);
-  EXPECT_EQ(index2_users[0], &gep);
-
   // 测试打印
   std::string print_result = gep.print();
   EXPECT_TRUE(print_result.find("%result = getelementptr i32") !=
               std::string::npos);
   EXPECT_TRUE(print_result.find("%ptr") != std::string::npos);
   EXPECT_TRUE(print_result.find("i32 0") != std::string::npos);
-  EXPECT_TRUE(print_result.find("i8 1") != std::string::npos);
 }
 
 // 测试地址计算指令 - 结构体类型
@@ -841,21 +833,20 @@ TEST(ValueTest, GetElementPtrInstTypeCheckTest) {
   // 使用AllocaInst创建指针而不是使用ConstantInt
   AllocaInst alloca_ptr("ptr", &i32_type);
   ConstantInt i32_val(&i32_type, 10);
-  ConstantInt i8_val(&i8_type, 20);
 
   // 正常情况：指针类型的指针和整数类型的索引
-  std::vector<Value *> indices1 = {&i32_val, &i8_val};
+  std::vector<Value *> indices1 = {&i32_val};
   EXPECT_NO_THROW(GetElementPtrInst("result1", &ptr_type, &i32_type,
                                     &alloca_ptr, indices1));
 
   // 异常情况：指针类型不是指针
-  std::vector<Value *> indices2 = {&i32_val, &i8_val};
+  std::vector<Value *> indices2 = {&i32_val};
   EXPECT_THROW(
       GetElementPtrInst("result2", &ptr_type, &i32_type, &i32_val, indices2),
       std::runtime_error);
 
   // 异常情况：索引不是整数类型
-  std::vector<Value *> indices3 = {&alloca_ptr, &i8_val};
+  std::vector<Value *> indices3 = {&alloca_ptr, &i32_val};
   EXPECT_THROW(
       GetElementPtrInst("result3", &ptr_type, &i32_type, &alloca_ptr, indices3),
       std::runtime_error);

@@ -362,13 +362,13 @@ public:
 class ConstantInt : public Constant {
 private:
   IntegerType *type_; // 整数类型，可能为32或8或1位
-  int64_t value_;     // 整数值
+  uint32_t value_;    // 整数值
 
 public:
-  ConstantInt(IntegerType *type, int64_t value);
+  ConstantInt(IntegerType *type, uint32_t value);
 
   auto getType() const -> Type * override;
-  auto getValue() const -> int64_t;
+  auto getValue() const -> uint32_t;
   auto getName() const -> std::string override;
   auto print() const -> std::string override;
 };
