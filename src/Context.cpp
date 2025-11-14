@@ -96,7 +96,7 @@ auto LLVMContext::getPointerType() -> PointerType * {
   return pointer_type_.get();
 }
 
-auto LLVMContext::getIntConstant(IntegerType *type, int64_t value)
+auto LLVMContext::getIntConstant(IntegerType *type, uint32_t value)
     -> ConstantInt * {
   auto key = std::make_pair(type, value);
   auto it = int_constants_.find(key);

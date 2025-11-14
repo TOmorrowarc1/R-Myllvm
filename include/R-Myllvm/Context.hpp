@@ -69,7 +69,7 @@ public:
   auto getPointerType() -> PointerType *;
 
   // 获取或创建整数常量对象
-  auto getIntConstant(IntegerType *type, int64_t value) -> ConstantInt *;
+  auto getIntConstant(IntegerType *type, uint32_t value) -> ConstantInt *;
 
 private:
   // void类型单例对象
