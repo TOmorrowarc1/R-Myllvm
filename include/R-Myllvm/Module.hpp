@@ -38,6 +38,10 @@ public:
   auto getOrCreateFunction(const std::string &name, FunctionType *func_type)
       -> Function *;
 
+  // 创建函数对象并添加到模块中，返回函数对象指针，若已创建则报错
+  auto createFunction(const std::string &name, FunctionType *func_type)
+      -> Function *;
+
   // 根据名称获取全局变量对象指针，若不存在则返回nullptr
   auto getGlobalVariable(const std::string &name) -> GlobalVariable *;
 
@@ -48,6 +52,11 @@ public:
   // 获取或创建全局变量对象
   auto getOrCreateGlobalVariable(const std::string &name, Type *var_type,
                                  bool is_constant, Constant *init_value)
+      -> GlobalVariable *;
+
+  // 创建全局变量对象并添加到模块中，返回全局变量对象指针，若已创建则报错
+  auto createGlobalVariable(const std::string &name, Type *var_type,
+                            bool is_constant, Constant *init_value)
       -> GlobalVariable *;
 
   // 获取所属上下文指针

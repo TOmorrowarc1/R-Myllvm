@@ -22,8 +22,8 @@ const std::vector<Value *> &User::getOperands() const { return operands_; }
 
 // GlobalVariable 类实现
 GlobalVariable::GlobalVariable(const std::string &name, Type *type,
-                               Constant *initial_value)
-    : name_(name), type_(type), initial_value_(initial_value) {}
+                               Constant *initial_value, bool is_constant)
+    : name_(name), type_(type), initial_value_(initial_value), is_constant_(is_constant) {}
 
 auto GlobalVariable::getType() const -> Type * { return type_; }
 
@@ -33,8 +33,18 @@ auto GlobalVariable::getInitialValue() const -> Constant * {
   return initial_value_;
 }
 
+auto GlobalVariable::isConstant() const -> bool {
+  return is_constant_;
+}
+
 auto GlobalVariable::print() const -> std::string {
-  std::string result = "@" + name_ + " = global " + type_->print();
+  std::string result = "@" + name_ + " = ";
+  if (is_constant_) {
+    result += "constant ";
+  } else {
+    result += "global ";
+  }
+  result += type_->print();
   if (initial_value_) {
     result += " " + initial_value_->print();
   } else {

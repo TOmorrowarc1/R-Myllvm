@@ -41,11 +41,13 @@
 - **接口**:
   - `Module(const std::string& name, LLVMContext* context)` - 构造函数，初始化模块名称与上下文指针。
   - `auto getFunction(const std::string& name) -> Function*` - 根据名称获取函数对象指针，若不存在则返回 nullptr。
-  - `void addFunction(const std::string& name, std::unique_ptr<Function>&& function)` - 向模块中添加函数对象。
+  - `auto createFunction(const std::string& name, FunctionType* func_type) -> Function*` - 创建函数对象并添加到模块中，返回函数对象指针，若已创建则报错。
   - `void getOrCreateFunction(const std::string& name, FunctionType* func_type)` - 获取或创建函数对象。
+  - `void addFunction(const std::string& name, std::unique_ptr<Function>&& function)` - 向模块中添加函数对象。
   - `auto getGlobalVariable(const std::string& name) -> GlobalVariable*` - 根据名称获取全局变量对象指针，若不存在则返回 nullptr。
-  - `void addGlobalVariable(const std::string& name, std::unque_ptr<GlobalVariable>&& global_var)` - 向模块中添加全局变量对象。
+  - `auto createGlobalVariable(const std::string& name, Type* var_type, bool is_constant, llvm::Constant* init_value) -> GlobalVariable*` - 创建全局变量对象并添加到模块中，返回全局变量对象指针，若已创建则报错。
   - `void getOrCreateGlobalVariable(const std::string& name, Type* var_type, bool is_constant, llvm::Constant* init_value)` - 获取或创建全局变量对象。
+  - `void addGlobalVariable(const std::string& name, std::unque_ptr<GlobalVariable>&& global_var)` - 向模块中添加全局变量对象。
   - `auto getContext() -> LLVMContext*` - 获取所属上下文指针。
   - `auto print() -> std::string` - 打印模块内所有函数与全局变量的信息，实现方式如下：
     - 遍历 global_vars_，调用每个 GlobalVariable 的 print 方法，拼接结果字符串。

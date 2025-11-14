@@ -66,13 +66,15 @@ private:
   std::string name_;        // 变量名称
   Type *type_;              // 变量类型
   Constant *initial_value_; // 变量初始值，可以为空表示未初始化
+  bool is_constant_;        // 是否为常量
 
 public:
-  GlobalVariable(const std::string &name, Type *type, Constant *initial_value);
+  GlobalVariable(const std::string &name, Type *type, Constant *initial_value, bool is_constant = false);
 
   auto getType() const -> Type * override;
   auto getName() const -> std::string override;
   auto getInitialValue() const -> Constant *;
+  auto isConstant() const -> bool;
   auto print() const -> std::string override;
 };
 

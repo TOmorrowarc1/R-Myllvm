@@ -62,6 +62,36 @@ TEST(ModuleTest, FunctionManagementTest) {
   EXPECT_NE(func1, func4);
 }
 
+// 测试createFunction函数
+TEST(ModuleTest, CreateFunctionTest) {
+  LLVMContext context;
+  Module module("test_module", &context);
+
+  // 获取类型
+  Type *i32_type = context.getInt32Ty();
+  Type *i8_type = context.getInt8Ty();
+  std::vector<Type *> param_types = {i8_type, i8_type};
+  FunctionType *func_type = context.getFunctionType(i32_type, param_types);
+
+  // 创建函数
+  Function *func1 = module.createFunction("test_func", func_type);
+  ASSERT_NE(func1, nullptr);
+  EXPECT_EQ(func1->getName(), "test_func");
+  EXPECT_EQ(func1->getType(), func_type);
+  EXPECT_EQ(func1->getParent(), &module);
+
+  // 尝试创建同名函数，应该抛出异常
+  EXPECT_THROW(module.createFunction("test_func", func_type), std::runtime_error);
+
+  // 创建另一个函数
+  FunctionType *another_func_type = context.getFunctionType(i8_type, {});
+  Function *func2 = module.createFunction("another_func", another_func_type);
+  ASSERT_NE(func2, nullptr);
+  EXPECT_EQ(func2->getName(), "another_func");
+  EXPECT_EQ(func2->getType(), another_func_type);
+  EXPECT_NE(func1, func2);
+}
+
 // 测试全局变量管理
 TEST(ModuleTest, GlobalVariableManagementTest) {
   LLVMContext context;
@@ -103,6 +133,38 @@ TEST(ModuleTest, GlobalVariableManagementTest) {
   EXPECT_EQ(var4->getName(), "another_var");
   EXPECT_EQ(var4->getType(), i32_type);
   EXPECT_NE(var1, var4);
+}
+
+// 测试createGlobalVariable函数
+TEST(ModuleTest, CreateGlobalVariableTest) {
+  LLVMContext context;
+  Module module("test_module", &context);
+
+  // 获取类型
+  Type *i32_type = context.getInt32Ty();
+  ConstantInt *init_value =
+      context.getIntConstant(static_cast<IntegerType *>(i32_type), 42);
+
+  // 创建全局变量
+  GlobalVariable *var1 = module.createGlobalVariable("test_var", i32_type, false, init_value);
+  ASSERT_NE(var1, nullptr);
+  EXPECT_EQ(var1->getName(), "test_var");
+  EXPECT_EQ(var1->getType(), i32_type);
+  EXPECT_EQ(var1->getInitialValue(), init_value);
+  EXPECT_EQ(var1->isConstant(), false);
+
+  // 尝试创建同名全局变量，应该抛出异常
+  EXPECT_THROW(module.createGlobalVariable("test_var", i32_type, false, init_value), std::runtime_error);
+
+  // 创建另一个全局变量
+  ConstantInt *another_init_value =
+      context.getIntConstant(static_cast<IntegerType *>(i32_type), 100);
+  GlobalVariable *var2 = module.createGlobalVariable("another_var", i32_type, true, another_init_value);
+  ASSERT_NE(var2, nullptr);
+  EXPECT_EQ(var2->getName(), "another_var");
+  EXPECT_EQ(var2->getType(), i32_type);
+  EXPECT_EQ(var2->isConstant(), true);
+  EXPECT_NE(var1, var2);
 }
 
 // 测试Module的打印功能
