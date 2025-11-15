@@ -546,7 +546,7 @@ auto CallInst::print() const -> std::string {
   return result;
 }
 
-// GetElementPtrInst 类实现
+// GetElementPtrInst 类实现：检查不够完整但够用。
 GetElementPtrInst::GetElementPtrInst(const std::string &name, Type *type,
                                      Type *base_type, Value *ptr,
                                      const std::vector<Value *> &indices)
@@ -571,6 +571,9 @@ GetElementPtrInst::GetElementPtrInst(const std::string &name, Type *type,
       throw std::runtime_error("GEPInst index applied to non-aggregate type");
     }
     if (auto *const_index = dynamic_cast<ConstantInt *>(index)) {
+      if (i == 0) {
+        continue; // 第一个索引用于指针算数，跳过检查。
+      }
       size_t idx = const_index->getValue();
       if (auto array_type = dynamic_cast<ArrayType *>(current_type)) {
         if (idx < 0 || idx >= array_type->getNumElements()) {
@@ -584,9 +587,6 @@ GetElementPtrInst::GetElementPtrInst(const std::string &name, Type *type,
         current_type = struct_type->getElementType(idx);
       }
     } else {
-      if (i == 0 && dynamic_cast<StructType *>(current_type)) {
-        throw std::runtime_error("GEPInst struct first index must be constant");
-      }
       break; // 非常量索引，停止检测。
     }
   }
@@ -740,6 +740,16 @@ auto ConstantArray::print() const -> std::string {
   }
   result += " ]";
   return result;
+}
+
+ConstantPointerNull::ConstantPointerNull(PointerType *type) : type_(type) {}
+
+auto ConstantPointerNull::getType() const -> Type * { return type_; }
+
+auto ConstantPointerNull::getName() const -> std::string { return "null"; }
+
+auto ConstantPointerNull::print() const -> std::string {
+  return type_->print() + " null";
 }
 
 // Argument 类实现

@@ -69,7 +69,8 @@ private:
   bool is_constant_;        // 是否为常量
 
 public:
-  GlobalVariable(const std::string &name, Type *type, Constant *initial_value, bool is_constant = false);
+  GlobalVariable(const std::string &name, Type *type, Constant *initial_value,
+                 bool is_constant = false);
 
   auto getType() const -> Type * override;
   auto getName() const -> std::string override;
@@ -378,14 +379,15 @@ public:
 // 结构体常量
 class ConstantStruct : public Constant {
 private:
-  StructType* type_; // 结构体类型
+  StructType *type_;                                // 结构体类型
   std::vector<std::unique_ptr<Constant>> elements_; // 结构体字段常量列表
 
 public:
-  ConstantStruct(StructType* type, std::vector<std::unique_ptr<Constant>>&& elements);
+  ConstantStruct(StructType *type,
+                 std::vector<std::unique_ptr<Constant>> &&elements);
 
-  auto getType() const -> StructType*;
-  const std::vector<Constant*>& getElements() const;
+  auto getType() const -> StructType *;
+  const std::vector<Constant *> &getElements() const;
   auto getName() const -> std::string override;
   auto print() const -> std::string override;
 };
@@ -393,14 +395,26 @@ public:
 // 数组常量
 class ConstantArray : public Constant {
 private:
-  ArrayType* type_; // 数组类型
+  ArrayType *type_;                                 // 数组类型
   std::vector<std::unique_ptr<Constant>> elements_; // 数组元素常量列表
 
 public:
-  ConstantArray(ArrayType* type, std::vector<std::unique_ptr<Constant>>&& elements);
+  ConstantArray(ArrayType *type,
+                std::vector<std::unique_ptr<Constant>> &&elements);
 
-  auto getType() const -> ArrayType*;
-  const std::vector<Constant*>& getElements() const;
+  auto getType() const -> ArrayType *;
+  const std::vector<Constant *> &getElements() const;
+  auto getName() const -> std::string override;
+  auto print() const -> std::string override;
+};
+
+class ConstantPointerNull : public Constant {
+private:
+  PointerType *type_;
+
+public:
+  ConstantPointerNull(PointerType *type);
+  auto getType() const -> Type * override;
   auto getName() const -> std::string override;
   auto print() const -> std::string override;
 };

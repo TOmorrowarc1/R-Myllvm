@@ -340,6 +340,17 @@ llvm::Value (抽象基类)
 - `auto getName() const -> std::string` - 获取数组常量，指只打印值而不打印类型信息，具体实现为直接打印`[]`内的元素常量列表，即依次调用成员print()。
 - `auto print() const -> std::string` - 打印数组常量完整信息，具体实现为先打印类型，再打印元素常量列表。
 
+#### 5.4 空指针常量 `llvm::ConstantPointerNull`
+该类型用于表示空指针常量。
+成员：
+- `PointerType* type_` - 指针类型
+
+接口：
+- `ConstantPointerNull(PointerType* type)` - 构造函数
+- `auto getType() const -> Type*` - 获取指针类型
+- `auto getName() const -> std::string` - 获取空指针常量，实现为输出 "null"。
+- `auto print() const -> std::string` - 打印空指针常量完整信息，实现为先打印类型信息，再打印 "null"。（即"ptr null"）
+
 ### 6. 函数参数 `llvm::Argument`
 该类型用于表示函数参数，在函数中，参数是数据流的源头。
 

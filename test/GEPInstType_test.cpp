@@ -100,23 +100,24 @@ TEST(GetElementPtrInstTest, StructIndexCheckTest) {
 
   // 创建结构体指针
   AllocaInst alloca_ptr("person_ptr", &struct_type);
+  ConstantInt index0(&i32_type, 0); // 第一个索引用于指针算数
 
   // 正常情况：有效的结构体索引
   ConstantInt valid_index1(&i32_type, 0); // 访问第0个成员
   ConstantInt valid_index2(&i32_type, 1); // 访问第1个成员
   ConstantInt valid_index3(&i32_type, 2); // 访问第2个成员
 
-  std::vector<Value *> indices1 = {&valid_index1};
+  std::vector<Value *> indices1 = {&index0, &valid_index1};
   EXPECT_NO_THROW(GetElementPtrInst("result1", &ptr_type, &struct_type,
                                     &alloca_ptr, indices1));
 
-  std::vector<Value *> indices2 = {&valid_index1, &valid_index2};
+  std::vector<Value *> indices2 = {&index0, &valid_index2};
   EXPECT_NO_THROW(GetElementPtrInst("result2", &ptr_type, &struct_type,
                                     &alloca_ptr, indices2));
 
   // 异常情况：结构体索引越界
   ConstantInt invalid_index(&i32_type, 3); // 超出结构体成员范围
-  std::vector<Value *> indices3 = {&invalid_index};
+  std::vector<Value *> indices3 = {&index0, &invalid_index};
   EXPECT_THROW(GetElementPtrInst("result3", &ptr_type, &struct_type,
                                  &alloca_ptr, indices3),
                std::runtime_error);
@@ -133,22 +134,23 @@ TEST(GetElementPtrInstTest, ArrayIndexCheckTest) {
   AllocaInst alloca_ptr("array_ptr", &array_type);
 
   // 正常情况：有效的数组索引
+  ConstantInt index0(&i32_type, 0);       // 第一个索引用于指针算数
   ConstantInt valid_index1(&i32_type, 0); // 访问第0个元素
   ConstantInt valid_index2(&i32_type, 2); // 访问第2个元素
   ConstantInt valid_index3(&i32_type, 4); // 访问第4个元素
 
-  std::vector<Value *> indices1 = {&valid_index1};
+  std::vector<Value *> indices1 = {&index0, &valid_index1};
   EXPECT_NO_THROW(GetElementPtrInst("result1", &ptr_type, &array_type,
                                     &alloca_ptr, indices1));
 
-  std::vector<Value *> indices2 = {&valid_index2};
+  std::vector<Value *> indices2 = {&index0, &valid_index2};
   EXPECT_NO_THROW(GetElementPtrInst("result2", &ptr_type, &array_type,
                                     &alloca_ptr, indices2));
 
   // 注意：数组索引的边界检查在LLVM中通常是在运行时进行的，
   // 编译时GEP指令不会检查数组索引是否越界
   ConstantInt large_index(&i32_type, 100); // 大索引
-  std::vector<Value *> indices3 = {&large_index};
+  std::vector<Value *> indices3 = {&index0, &large_index};
   EXPECT_THROW(GetElementPtrInst("result3", &ptr_type, &array_type, &alloca_ptr,
                                  indices3),
                std::runtime_error);
@@ -174,21 +176,22 @@ TEST(GetElementPtrInstTest, NestedStructureCheckTest) {
   AllocaInst alloca_ptr("outer_ptr", &outer_struct);
 
   // 正常情况：访问嵌套结构体成员
+  ConstantInt index0(&i32_type, 0);      // 第一个索引用于指针算数
   ConstantInt outer_index(&i32_type, 1); // 访问第1个成员（内层结构体）
   ConstantInt inner_index(&i32_type, 0); // 访问内层结构体的第0个成员
 
-  std::vector<Value *> indices1 = {&outer_index};
+  std::vector<Value *> indices1 = {&index0, &outer_index};
   EXPECT_NO_THROW(GetElementPtrInst("result1", &ptr_type, &outer_struct,
                                     &alloca_ptr, indices1));
 
-  std::vector<Value *> indices2 = {&outer_index, &inner_index};
+  std::vector<Value *> indices2 = {&index0, &outer_index, &inner_index};
   EXPECT_NO_THROW(GetElementPtrInst("result2", &ptr_type, &outer_struct,
                                     &alloca_ptr, indices2));
 
   // 异常情况：访问嵌套结构体成员时索引越界
   ConstantInt invalid_inner_index(&i32_type,
                                   2); // 内层结构体只有2个成员，索引2越界
-  std::vector<Value *> indices3 = {&outer_index, &invalid_inner_index};
+  std::vector<Value *> indices3 = {&index0, &outer_index, &invalid_inner_index};
   EXPECT_THROW(GetElementPtrInst("result3", &ptr_type, &outer_struct,
                                  &alloca_ptr, indices3),
                std::runtime_error);
@@ -215,16 +218,11 @@ TEST(GetElementPtrInstTest, NonConstantIndexCheckTest) {
                                  "add");
 
   // 正常情况：非常量索引用于结构体访问
+  ConstantInt index0(&i32_type, 0); // 第一个索引用于指针算数
   ConstantInt struct_index(&i32_type, 0);
-  std::vector<Value *> indices1 = {&struct_index};
+  std::vector<Value *> indices1 = {&index0, &struct_index};
   EXPECT_NO_THROW(GetElementPtrInst("result1", &ptr_type, &struct_type,
                                     &alloca_ptr, indices1));
-
-  // 对于结构体成员访问，第一个索引必须是常量
-  std::vector<Value *> indices2 = {&non_const_index};
-  EXPECT_THROW(GetElementPtrInst("result2", &ptr_type, &struct_type,
-                                 &alloca_ptr, indices2),
-               std::runtime_error);
 }
 
 // 测试GEP指令类型检测 - 不可索引类型

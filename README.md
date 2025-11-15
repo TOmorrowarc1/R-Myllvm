@@ -25,5 +25,3 @@ Value 多态类代指一切可以被使用的数据，是形成 LLVM IR 中 DFG 
 
 ### 3. IRBuilder
 该类型为 LLVM IR 指令构建器，使用 Builder 模式生成各种对象。
-
-// TODO: 结构体常量，数组常量以及要命的结构体长度计算。
