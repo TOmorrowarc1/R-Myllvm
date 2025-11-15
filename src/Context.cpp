@@ -110,4 +110,55 @@ auto LLVMContext::getIntConstant(IntegerType *type, uint32_t value)
   return result;
 }
 
+auto LLVMContext::getStructConstant(StructType *type, std::vector<std::unique_ptr<llvm::Constant>> &&values)
+    -> ConstantStruct * {
+  // 创建一个临时的常量指针数组用于比较
+  std::vector<Constant *> temp_values;
+  for (const auto &value : values) {
+    temp_values.push_back(value.get());
+  }
+  
+  ArrayRef<Constant *> values_ref(temp_values);
+  auto key = std::make_pair(type, values_ref);
+  auto it = struct_constants_.find(key);
+  if (it != struct_constants_.end()) {
+    return it->second.get();
+  }
+
+  // 直接使用移动语义，不需要复制
+  auto constant = std::make_unique<ConstantStruct>(type, std::move(values));
+  auto *result = constant.get();
+  struct_constants_[key] = std::move(constant);
+  return result;
+}
+
+auto LLVMContext::getArrayConstant(ArrayType *type, std::vector<std::unique_ptr<llvm::Constant>> &&values)
+    -> ConstantArray * {
+  // 创建一个临时的常量指针数组用于比较
+  std::vector<Constant *> temp_values;
+  for (const auto &value : values) {
+    temp_values.push_back(value.get());
+  }
+  
+  ArrayRef<Constant *> values_ref(temp_values);
+  auto key = std::make_pair(type, values_ref);
+  auto it = array_constants_.find(key);
+  if (it != array_constants_.end()) {
+    return it->second.get();
+  }
+
+  // 直接使用移动语义，不需要复制
+  auto constant = std::make_unique<ConstantArray>(type, std::move(values));
+  auto *result = constant.get();
+  array_constants_[key] = std::move(constant);
+  return result;
+}
+
+auto LLVMContext::getNullPtrConstant() -> ConstantPointerNull * {
+  if (!null_constant_) {
+    null_constant_ = std::make_unique<ConstantPointerNull>(getPointerType());
+  }
+  return null_constant_.get();
+}
+
 } // namespace llvm

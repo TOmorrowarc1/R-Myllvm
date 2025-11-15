@@ -15,6 +15,9 @@
 - `std::unique_ptr<PointerType> pointer_type_` - 指针类型单例对象。
 - `std::map<std::pair<Type*, llvm::ArrayRef<Type*>>, std::unique_ptr<FunctionType>> function_types_` - 存储已创建的函数类对象，避免重复创建，通过返回类型和参数类型列表索引。（注意：需要自定义llvm::ArrayRef的比较函数，使用仿函数与字典序比较）
 - `std::map<std::pair<Integertype*, int64_t>, std::unique_ptr<ConstantInt>> int_constants_` - 存储已创建的整数常量对象，避免重复创建，通过类型与整数值索引。
+- `std::map<std::pair<StructType*, llvm::ArrayRef<Constant*>>, std::unique_ptr<ConstantStruct>> struct_constants_` - 存储已创建的结构体常量对象，避免重复创建，通过类型与值列表索引。（注意：需要自定义std::vector的比较函数，使用仿函数与字典序比较）
+- `std::map<std::pair<ArrayType*, llvm::ArrayRef<Constant*>>, std::unique_ptr<ConstantArray>> array_constants_` - 存储已创建的数组常量对象，避免重复创建，通过类型与值列表索引。（注意：需要自定义std::vector的比较函数，使用仿函数与字典序比较）
+- `std::unique_ptr<ConstantPointerNull> null_constant_` - 空指针常量单例对象。
   
 接口：
 - 构造函数：空的。
@@ -27,6 +30,9 @@
 - `auto getFunctionType(Type* return_type, const vector<Type*>& param_types) -> FunctionType*` - 获取或创建函数类型对象。
 - `auto getPointerType() -> PointerType*` - 获取指针类型对象。
 - `auto getIntConstant(Integertype* type, int64_t value) -> ConstantInt*` - 获取或创建整数常量对象。
+- `auto getStructConstant(StructType* type,std::vector<std::unique_ptr<llvm::Constant>>&& values) -> ConstantStruct*` - 获取或创建结构体常量对象。
+- `auto getArrayConstant(ArrayType* type,std::vector<std::unique_ptr<llvm::Constant>>&& values) -> ConstantArray*` - 获取或创建数组常量对象。
+- `auto getNullPtrConstant() -> ConstantPointerNull*` - 获取或创建空指针常量对象。
 
 
 ### 2. Module
