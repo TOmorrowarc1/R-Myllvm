@@ -313,13 +313,32 @@ llvm::Value (抽象基类)
 - `ConstantInt(IntergerType* type, int64_t value)` - 构造函数，此处存在数值溢出的问题，但是我们选择信任使用者（我自己）。
 - `auto getType() const -> IntegerType*` - 获取整数类型
 - `auto getValue() const -> int64_t` - 获取整数值
-- `auto getName() const -> std::string` - 获取整数常量，实现为输出整数对应字符串，print亦然。
-- `auto print() const -> std::string` - 打印整数常量信息。
+- `auto getName() const -> std::string` - 获取整数常量，实现为输出整数对应字符串。
+- `auto print() const -> std::string` - 打印整数常量完整信息，实现为先打印类型信息，再打印整数值。
 
 #### 5.2 结构体常量 `llvm::ConstantStruct`
-// TODO: unit type 需要。
+成员：
+- `StructType* type_` - 结构体类型
+- `std::vector<std::unique_ptr<Constant>> elements_` - 结构体字段常量列表
+
+接口：
+- `ConstantStruct(StructType* type, std::vector<std::unique_ptr<Constant>>&& elements)` - 构造函数，要求字段数量和类型与结构体类型内部信息一致，若不相符则报错。
+- `auto getType() const -> StructType*` - 获取结构体类型
+- `const std::vector<Constant*>& getElements() const` - 获取字段常量
+- `auto getName() const -> std::string` - 获取结构体常量，指只打印值而不打印类型信息，具体实现为打印`{}`内的字段常量列表，即依次调用成员print()。
+- `auto print() const -> std::string` - 打印结构体常量完整信息，一般用于使用整个常量。具体实现为先打印类型，再打印字段常量列表。
+
 #### 5.3 数组常量 `llvm::ConstantArray`
-暂时不必实现，同上。
+成员：
+- `ArrayType* type_` - 数组类型
+- `std::vector<std::unique_ptr<Constant>> elements_` - 数组元素常量列表
+
+接口：
+- `ConstantArray(ArrayType* type, std::vector<std::unique_ptr<Constant>>&& elements)` - 构造函数，要求元素数量和类型与数组类型内部信息一致，若不相符则报错。
+- `auto getType() const -> ArrayType*` - 获取数组类型
+- `const std::vector<Constant*>& getElements() const` - 获取数组元素常量
+- `auto getName() const -> std::string` - 获取数组常量，指只打印值而不打印类型信息，具体实现为直接打印`[]`内的元素常量列表，即依次调用成员print()。
+- `auto print() const -> std::string` - 打印数组常量完整信息，具体实现为先打印类型，再打印元素常量列表。
 
 ### 6. 函数参数 `llvm::Argument`
 该类型用于表示函数参数，在函数中，参数是数据流的源头。

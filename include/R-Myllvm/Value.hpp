@@ -377,12 +377,32 @@ public:
 
 // 结构体常量
 class ConstantStruct : public Constant {
-  // 暂时不进行实现，涉及到多层复合的问题
+private:
+  StructType* type_; // 结构体类型
+  std::vector<std::unique_ptr<Constant>> elements_; // 结构体字段常量列表
+
+public:
+  ConstantStruct(StructType* type, std::vector<std::unique_ptr<Constant>>&& elements);
+
+  auto getType() const -> StructType*;
+  const std::vector<Constant*>& getElements() const;
+  auto getName() const -> std::string override;
+  auto print() const -> std::string override;
 };
 
 // 数组常量
 class ConstantArray : public Constant {
-  // 暂时不必实现，同上
+private:
+  ArrayType* type_; // 数组类型
+  std::vector<std::unique_ptr<Constant>> elements_; // 数组元素常量列表
+
+public:
+  ConstantArray(ArrayType* type, std::vector<std::unique_ptr<Constant>>&& elements);
+
+  auto getType() const -> ArrayType*;
+  const std::vector<Constant*>& getElements() const;
+  auto getName() const -> std::string override;
+  auto print() const -> std::string override;
 };
 
 // 函数参数

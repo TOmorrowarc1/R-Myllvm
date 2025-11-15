@@ -23,7 +23,8 @@ const std::vector<Value *> &User::getOperands() const { return operands_; }
 // GlobalVariable 类实现
 GlobalVariable::GlobalVariable(const std::string &name, Type *type,
                                Constant *initial_value, bool is_constant)
-    : name_(name), type_(type), initial_value_(initial_value), is_constant_(is_constant) {}
+    : name_(name), type_(type), initial_value_(initial_value),
+      is_constant_(is_constant) {}
 
 auto GlobalVariable::getType() const -> Type * { return type_; }
 
@@ -33,9 +34,7 @@ auto GlobalVariable::getInitialValue() const -> Constant * {
   return initial_value_;
 }
 
-auto GlobalVariable::isConstant() const -> bool {
-  return is_constant_;
-}
+auto GlobalVariable::isConstant() const -> bool { return is_constant_; }
 
 auto GlobalVariable::print() const -> std::string {
   std::string result = "@" + name_ + " = ";
@@ -632,7 +631,115 @@ auto ConstantInt::getName() const -> std::string {
 }
 
 auto ConstantInt::print() const -> std::string {
-  return std::to_string(value_);
+  return type_->print() + " " + std::to_string(value_);
+}
+
+// ConstantStruct 类实现
+ConstantStruct::ConstantStruct(
+    StructType *type, std::vector<std::unique_ptr<Constant>> &&elements)
+    : type_(type), elements_(std::move(elements)) {
+  // 检查字段数量和类型是否与结构体类型内部信息一致
+  const auto &struct_elements = type_->getBody();
+  if (elements_.size() != struct_elements.size()) {
+    throw std::runtime_error(
+        "ConstantStruct element count does not match struct type");
+  }
+
+  for (size_t i = 0; i < elements_.size(); ++i) {
+    if (!elements_[i]->getType()->isEqual(struct_elements[i])) {
+      throw std::runtime_error(
+          "ConstantStruct element type does not match struct type");
+    }
+  }
+}
+
+auto ConstantStruct::getType() const -> StructType * { return type_; }
+
+const std::vector<Constant *> &ConstantStruct::getElements() const {
+  static std::vector<Constant *> raw_elements;
+  raw_elements.clear();
+  for (const auto &elem : elements_) {
+    raw_elements.push_back(elem.get());
+  }
+  return raw_elements;
+}
+
+auto ConstantStruct::getName() const -> std::string {
+  std::string result = "{ ";
+  for (size_t i = 0; i < elements_.size(); ++i) {
+    result += elements_[i]->print();
+    if (i < elements_.size() - 1) {
+      result += ", ";
+    }
+  }
+  result += " }";
+  return result;
+}
+
+auto ConstantStruct::print() const -> std::string {
+  std::string result = type_->print() + " { ";
+  for (size_t i = 0; i < elements_.size(); ++i) {
+    result += elements_[i]->print();
+    if (i < elements_.size() - 1) {
+      result += ", ";
+    }
+  }
+  result += " }";
+  return result;
+}
+
+// ConstantArray 类实现
+ConstantArray::ConstantArray(ArrayType *type,
+                             std::vector<std::unique_ptr<Constant>> &&elements)
+    : type_(type), elements_(std::move(elements)) {
+  // 检查元素数量和类型是否与数组类型内部信息一致
+  if (elements_.size() != type_->getNumElements()) {
+    throw std::runtime_error(
+        "ConstantArray element count does not match array type");
+  }
+
+  auto element_type = type_->getElementType();
+  for (const auto &elem : elements_) {
+    if (!elem->getType()->isEqual(element_type)) {
+      throw std::runtime_error(
+          "ConstantArray element type does not match array type");
+    }
+  }
+}
+
+auto ConstantArray::getType() const -> ArrayType * { return type_; }
+
+const std::vector<Constant *> &ConstantArray::getElements() const {
+  static std::vector<Constant *> raw_elements;
+  raw_elements.clear();
+  for (const auto &elem : elements_) {
+    raw_elements.push_back(elem.get());
+  }
+  return raw_elements;
+}
+
+auto ConstantArray::getName() const -> std::string {
+  std::string result = "[ ";
+  for (size_t i = 0; i < elements_.size(); ++i) {
+    result += elements_[i]->print();
+    if (i < elements_.size() - 1) {
+      result += ", ";
+    }
+  }
+  result += " ]";
+  return result;
+}
+
+auto ConstantArray::print() const -> std::string {
+  std::string result = type_->print() + " [ ";
+  for (size_t i = 0; i < elements_.size(); ++i) {
+    result += elements_[i]->print();
+    if (i < elements_.size() - 1) {
+      result += ", ";
+    }
+  }
+  result += " ]";
+  return result;
 }
 
 // Argument 类实现

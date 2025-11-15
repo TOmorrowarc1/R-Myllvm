@@ -11,7 +11,7 @@ TEST(ValueTest, ConstantIntTest) {
   EXPECT_EQ(const_int.getType(), &i32_type);
   EXPECT_EQ(const_int.getValue(), 42);
   EXPECT_EQ(const_int.getName(), "42");
-  EXPECT_EQ(const_int.print(), "42");
+  EXPECT_EQ(const_int.print(), "i32 42");
 
   // 测试不同类型的常量
   Int8Type i8_type;
@@ -20,7 +20,7 @@ TEST(ValueTest, ConstantIntTest) {
   EXPECT_EQ(const_int8.getType(), &i8_type);
   EXPECT_EQ(const_int8.getValue(), 127);
   EXPECT_EQ(const_int8.getName(), "127");
-  EXPECT_EQ(const_int8.print(), "127");
+  EXPECT_EQ(const_int8.print(), "i8 127");
 }
 
 // 测试全局变量
@@ -1235,6 +1235,269 @@ TEST(ValueTest, FunctionTypeTest) {
   EXPECT_EQ(function2.getType(), &func_type2);
   EXPECT_EQ(function2.getType()->getReturnType(), &void_type);
   EXPECT_EQ(function2.getType()->getNumParams(), 0);
+}
+
+// 测试结构体常量
+TEST(ValueTest, ConstantStructTest) {
+  Int32Type i32_type;
+  Int8Type i8_type;
+  StructType struct_type("Person");
+  
+  // 设置结构体成员
+  std::vector<Type*> elements = {&i32_type, &i8_type, &i32_type};
+  struct_type.setBody(elements);
+  
+  // 创建常量元素
+  std::vector<std::unique_ptr<Constant>> const_elements;
+  const_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 25));  // age
+  const_elements.push_back(std::make_unique<ConstantInt>(&i8_type, 180));  // height
+  const_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 75)); // weight
+  
+  // 创建结构体常量
+  ConstantStruct person(&struct_type, std::move(const_elements));
+  
+  // 测试基本属性
+  EXPECT_EQ(person.getType(), &struct_type);
+  
+  // 测试获取元素
+  const auto& elements_ref = person.getElements();
+  EXPECT_EQ(elements_ref.size(), 3);
+  
+  // 测试getName - 只打印值而不打印类型信息
+  std::string name_result = person.getName();
+  EXPECT_TRUE(name_result.find("{") != std::string::npos);
+  EXPECT_TRUE(name_result.find("}") != std::string::npos);
+  EXPECT_TRUE(name_result.find("25") != std::string::npos);
+  EXPECT_TRUE(name_result.find("180") != std::string::npos);
+  EXPECT_TRUE(name_result.find("75") != std::string::npos);
+  
+  // 测试print - 打印完整信息
+  std::string print_result = person.print();
+  EXPECT_TRUE(print_result.find("%struct.Person") != std::string::npos);
+  EXPECT_TRUE(print_result.find("{") != std::string::npos);
+  EXPECT_TRUE(print_result.find("}") != std::string::npos);
+  EXPECT_TRUE(print_result.find("i32 25") != std::string::npos);
+  EXPECT_TRUE(print_result.find("i8 180") != std::string::npos);
+  EXPECT_TRUE(print_result.find("i32 75") != std::string::npos);
+}
+
+// 测试结构体常量类型检测
+TEST(ValueTest, ConstantStructTypeCheckTest) {
+  Int32Type i32_type;
+  Int8Type i8_type;
+  StructType struct_type("Person");
+  
+  // 设置结构体成员
+  std::vector<Type*> elements = {&i32_type, &i8_type, &i32_type};
+  struct_type.setBody(elements);
+  
+  // 正常情况：元素数量和类型匹配
+  std::vector<std::unique_ptr<Constant>> correct_elements;
+  correct_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 25));
+  correct_elements.push_back(std::make_unique<ConstantInt>(&i8_type, 180));
+  correct_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 75));
+  
+  EXPECT_NO_THROW(ConstantStruct person1(&struct_type, std::move(correct_elements)));
+  
+  // 异常情况：元素数量不匹配
+  std::vector<std::unique_ptr<Constant>> wrong_count_elements;
+  wrong_count_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 25));
+  wrong_count_elements.push_back(std::make_unique<ConstantInt>(&i8_type, 180));
+  
+  EXPECT_THROW(ConstantStruct person2(&struct_type, std::move(wrong_count_elements)),
+               std::runtime_error);
+  
+  // 异常情况：元素类型不匹配
+  std::vector<std::unique_ptr<Constant>> wrong_type_elements;
+  wrong_type_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 25));
+  wrong_type_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 180)); // 应该是i8
+  wrong_type_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 75));
+  
+  EXPECT_THROW(ConstantStruct person3(&struct_type, std::move(wrong_type_elements)),
+               std::runtime_error);
+}
+
+// 测试数组常量
+TEST(ValueTest, ConstantArrayTest) {
+  Int32Type i32_type;
+  ArrayType array_type(&i32_type, 3); // 创建包含3个i32元素的数组类型
+  
+  // 创建常量元素
+  std::vector<std::unique_ptr<Constant>> const_elements;
+  const_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 10));
+  const_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 20));
+  const_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 30));
+  
+  // 创建数组常量
+  ConstantArray array(&array_type, std::move(const_elements));
+  
+  // 测试基本属性
+  EXPECT_EQ(array.getType(), &array_type);
+  
+  // 测试获取元素
+  const auto& elements_ref = array.getElements();
+  EXPECT_EQ(elements_ref.size(), 3);
+  
+  // 测试getName - 只打印值而不打印类型信息
+  std::string name_result = array.getName();
+  EXPECT_TRUE(name_result.find("[") != std::string::npos);
+  EXPECT_TRUE(name_result.find("]") != std::string::npos);
+  EXPECT_TRUE(name_result.find("10") != std::string::npos);
+  EXPECT_TRUE(name_result.find("20") != std::string::npos);
+  EXPECT_TRUE(name_result.find("30") != std::string::npos);
+  
+  // 测试print - 打印完整信息
+  std::string print_result = array.print();
+  EXPECT_TRUE(print_result.find("[i32 x 3]") != std::string::npos);
+  EXPECT_TRUE(print_result.find("[") != std::string::npos);
+  EXPECT_TRUE(print_result.find("]") != std::string::npos);
+  EXPECT_TRUE(print_result.find("i32 10") != std::string::npos);
+  EXPECT_TRUE(print_result.find("i32 20") != std::string::npos);
+  EXPECT_TRUE(print_result.find("i32 30") != std::string::npos);
+}
+
+// 测试数组常量类型检测
+TEST(ValueTest, ConstantArrayTypeCheckTest) {
+  Int32Type i32_type;
+  Int8Type i8_type;
+  ArrayType array_type(&i32_type, 3); // 创建包含3个i32元素的数组类型
+  
+  // 正常情况：元素数量和类型匹配
+  std::vector<std::unique_ptr<Constant>> correct_elements;
+  correct_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 10));
+  correct_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 20));
+  correct_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 30));
+  
+  EXPECT_NO_THROW(ConstantArray array1(&array_type, std::move(correct_elements)));
+  
+  // 异常情况：元素数量不匹配
+  std::vector<std::unique_ptr<Constant>> wrong_count_elements;
+  wrong_count_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 10));
+  wrong_count_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 20));
+  
+  EXPECT_THROW(ConstantArray array2(&array_type, std::move(wrong_count_elements)),
+               std::runtime_error);
+  
+  // 异常情况：元素类型不匹配
+  std::vector<std::unique_ptr<Constant>> wrong_type_elements;
+  wrong_type_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 10));
+  wrong_type_elements.push_back(std::make_unique<ConstantInt>(&i8_type, 20));   // 应该是i32
+  wrong_type_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 30));
+  
+  EXPECT_THROW(ConstantArray array3(&array_type, std::move(wrong_type_elements)),
+               std::runtime_error);
+}
+
+// 测试嵌套常量 - 结构体包含数组
+TEST(ValueTest, NestedConstantStructWithArrayTest) {
+  Int32Type i32_type;
+  Int8Type i8_type;
+  
+  // 创建数组类型
+  ArrayType array_type(&i32_type, 2);
+  
+  // 创建数组常量
+  std::vector<std::unique_ptr<Constant>> array_elements;
+  array_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 100));
+  array_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 200));
+  auto array_const = std::make_unique<ConstantArray>(&array_type, std::move(array_elements));
+  
+  // 创建结构体类型，包含数组
+  StructType struct_type("Data");
+  std::vector<Type*> struct_elements = {&i32_type, &array_type, &i8_type};
+  struct_type.setBody(struct_elements);
+  
+  // 创建结构体常量
+  std::vector<std::unique_ptr<Constant>> struct_const_elements;
+  struct_const_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 42));
+  struct_const_elements.push_back(std::move(array_const));
+  struct_const_elements.push_back(std::make_unique<ConstantInt>(&i8_type, 65));
+  
+  ConstantStruct data(&struct_type, std::move(struct_const_elements));
+  
+  // 测试基本属性
+  EXPECT_EQ(data.getType(), &struct_type);
+  
+  // 测试getName
+  std::string name_result = data.getName();
+  EXPECT_TRUE(name_result.find("{") != std::string::npos);
+  EXPECT_TRUE(name_result.find("}") != std::string::npos);
+  EXPECT_TRUE(name_result.find("42") != std::string::npos);
+  EXPECT_TRUE(name_result.find("[") != std::string::npos);  // 数组
+  EXPECT_TRUE(name_result.find("100") != std::string::npos);
+  EXPECT_TRUE(name_result.find("200") != std::string::npos);
+  EXPECT_TRUE(name_result.find("65") != std::string::npos);
+  
+  // 测试print
+  std::string print_result = data.print();
+  EXPECT_TRUE(print_result.find("%struct.Data") != std::string::npos);
+  EXPECT_TRUE(print_result.find("{") != std::string::npos);
+  EXPECT_TRUE(print_result.find("}") != std::string::npos);
+  EXPECT_TRUE(print_result.find("i32 42") != std::string::npos);
+  EXPECT_TRUE(print_result.find("[i32 x 2]") != std::string::npos);
+  EXPECT_TRUE(print_result.find("[") != std::string::npos);
+  EXPECT_TRUE(print_result.find("i32 100") != std::string::npos);
+  EXPECT_TRUE(print_result.find("i32 200") != std::string::npos);
+  EXPECT_TRUE(print_result.find("i8 65") != std::string::npos);
+}
+
+// 测试嵌套常量 - 数组包含结构体
+TEST(ValueTest, NestedConstantArrayWithStructTest) {
+  Int32Type i32_type;
+  Int8Type i8_type;
+  
+  // 创建结构体类型
+  StructType struct_type("Point");
+  std::vector<Type*> struct_elements = {&i32_type, &i32_type};
+  struct_type.setBody(struct_elements);
+  
+  // 创建结构体常量
+  std::vector<std::unique_ptr<Constant>> point1_elements;
+  point1_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 10));
+  point1_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 20));
+  auto point1 = std::make_unique<ConstantStruct>(&struct_type, std::move(point1_elements));
+  
+  std::vector<std::unique_ptr<Constant>> point2_elements;
+  point2_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 30));
+  point2_elements.push_back(std::make_unique<ConstantInt>(&i32_type, 40));
+  auto point2 = std::make_unique<ConstantStruct>(&struct_type, std::move(point2_elements));
+  
+  // 创建数组类型
+  ArrayType array_type(&struct_type, 2);
+  
+  // 创建数组常量
+  std::vector<std::unique_ptr<Constant>> array_elements;
+  array_elements.push_back(std::move(point1));
+  array_elements.push_back(std::move(point2));
+  
+  ConstantArray points(&array_type, std::move(array_elements));
+  
+  // 测试基本属性
+  EXPECT_EQ(points.getType(), &array_type);
+  
+  // 测试getName
+  std::string name_result = points.getName();
+  EXPECT_TRUE(name_result.find("[") != std::string::npos);
+  EXPECT_TRUE(name_result.find("]") != std::string::npos);
+  EXPECT_TRUE(name_result.find("{") != std::string::npos);  // 结构体
+  EXPECT_TRUE(name_result.find("}") != std::string::npos);
+  EXPECT_TRUE(name_result.find("10") != std::string::npos);
+  EXPECT_TRUE(name_result.find("20") != std::string::npos);
+  EXPECT_TRUE(name_result.find("30") != std::string::npos);
+  EXPECT_TRUE(name_result.find("40") != std::string::npos);
+  
+  // 测试print
+  std::string print_result = points.print();
+  EXPECT_TRUE(print_result.find("[%struct.Point x 2]") != std::string::npos);
+  EXPECT_TRUE(print_result.find("[") != std::string::npos);
+  EXPECT_TRUE(print_result.find("]") != std::string::npos);
+  EXPECT_TRUE(print_result.find("%struct.Point") != std::string::npos);
+  EXPECT_TRUE(print_result.find("{") != std::string::npos);
+  EXPECT_TRUE(print_result.find("}") != std::string::npos);
+  EXPECT_TRUE(print_result.find("i32 10") != std::string::npos);
+  EXPECT_TRUE(print_result.find("i32 20") != std::string::npos);
+  EXPECT_TRUE(print_result.find("i32 30") != std::string::npos);
+  EXPECT_TRUE(print_result.find("i32 40") != std::string::npos);
 }
 
 } // namespace llvm
