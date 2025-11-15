@@ -316,7 +316,7 @@ auto IRBuilder::CreateGEP(Type *type, Value *ptr,
   return result;
 }
 
-auto IRBuilder::CreateMemCpy(Value *dest, Value *src, uint64_t size,
+auto IRBuilder::CreateMemCpy(Value *dest, Value *src, Value *size,
                              bool is_violatile) -> CallInst * {
   if (!insert_block_) {
     return nullptr;
@@ -333,13 +333,17 @@ auto IRBuilder::CreateMemCpy(Value *dest, Value *src, uint64_t size,
     return nullptr;
   }
 
+  // 检测size类型是否为i32整数类型
+  if (size->getType() != context_->getInt32Ty()) {
+    return nullptr;
+  }
+
   // 创建memcpy函数类型：void (ptr, ptr, i32, i1)
   Type *void_type = context_->getVoidTy();
   Type *ptr_type = context_->getPointerType();
-  Type *i32_type = context_->getInt32Ty();
   Type *i1_type = context_->getInt1Ty();
 
-  std::vector<Type *> param_types = {ptr_type, ptr_type, i32_type, i1_type};
+  std::vector<Type *> param_types = {ptr_type, ptr_type, context_->getInt32Ty(), i1_type};
   FunctionType *memcpy_type = context_->getFunctionType(void_type, param_types);
 
   // 获取或创建memcpy函数声明
@@ -350,15 +354,11 @@ auto IRBuilder::CreateMemCpy(Value *dest, Value *src, uint64_t size,
   std::vector<Value *> args;
   args.push_back(dest); // 目标地址
   args.push_back(src);  // 源地址
-
-  // 创建size参数的常量
-  ConstantInt *size_const =
-      context_->getIntConstant(static_cast<IntegerType *>(i32_type), size);
-  args.push_back(size_const); // 拷贝大小
+  args.push_back(size); // 拷贝大小
 
   // 创建is_violatile参数的常量
   ConstantInt *volatile_const = context_->getIntConstant(
-      static_cast<IntegerType *>(i1_type), is_violatile ? 1 : 0);
+      static_cast<IntegerType *>(context_->getInt1Ty()), is_violatile ? 1 : 0);
   args.push_back(volatile_const); // 是否易失
 
   // 创建函数调用指令

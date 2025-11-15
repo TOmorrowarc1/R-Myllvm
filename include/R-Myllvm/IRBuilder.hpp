@@ -119,7 +119,7 @@ public:
       -> PtrToIntInst *;
   auto CreateGEP(Type *type, Value *ptr, const std::vector<Value *> &indices,
                  const std::string &name = "") -> GetElementPtrInst *;
-  auto CreateMemCpy(Value *dest, Value *src, uint64_t size, bool is_violatile)
+  auto CreateMemCpy(Value *dest, Value *src, Value *size, bool is_violatile)
       -> CallInst *;
 };
 
