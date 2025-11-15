@@ -21,6 +21,7 @@ class StructType;
 class ArrayType;
 class FunctionType;
 class PointerType;
+class Constant;
 class ConstantInt;
 class ConstantStruct;
 class ConstantArray;

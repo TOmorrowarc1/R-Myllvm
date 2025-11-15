@@ -425,7 +425,8 @@ TEST(IRBuilderTest, OtherInstructionTest) {
   auto src_result =
       builder.CreateStore(context.getIntConstant(integer_type, 42), dest);
 
-  CallInst *memcpy_inst = builder.CreateMemCpy(dest, src, 64, false);
+  auto size = context.getIntConstant(integer_type, 64);
+  CallInst *memcpy_inst = builder.CreateMemCpy(dest, src, size, false);
   ASSERT_NE(memcpy_inst, nullptr);
 }
 
