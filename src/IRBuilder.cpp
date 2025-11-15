@@ -286,6 +286,19 @@ auto IRBuilder::CreateCall(Function *func, const std::vector<Value *> &args,
   return result;
 }
 
+auto IRBuilder::CreatePtrToInt(Type *type, Value *ptr, const std::string &name)
+    -> PtrToIntInst * {
+  if (!insert_block_) {
+    return nullptr;
+  }
+
+  std::string actual_name = name.empty() ? genLLVMReg() : name;
+  auto ptr_to_int = std::make_unique<PtrToIntInst>(actual_name, type, ptr);
+  auto result = ptr_to_int.get();
+  insert_block_->addInstruction(std::move(ptr_to_int));
+  return result;
+}
+
 auto IRBuilder::CreateGEP(Type *type, Value *ptr,
                           const std::vector<Value *> &indices,
                           const std::string &name) -> GetElementPtrInst * {
@@ -320,18 +333,18 @@ auto IRBuilder::CreateMemCpy(Value *dest, Value *src, uint64_t size,
     return nullptr;
   }
 
-  // 创建memcpy函数类型：void (ptr, ptr, i64, i1)
-  Type *void_type = context_->getInt8Ty(); // 使用i8作为void的替代
+  // 创建memcpy函数类型：void (ptr, ptr, i32, i1)
+  Type *void_type = context_->getVoidTy();
   Type *ptr_type = context_->getPointerType();
-  Type *i64_type = context_->getInt32Ty(); // 使用i32作为i64的替代
+  Type *i32_type = context_->getInt32Ty();
   Type *i1_type = context_->getInt1Ty();
 
-  std::vector<Type *> param_types = {ptr_type, ptr_type, i64_type, i1_type};
+  std::vector<Type *> param_types = {ptr_type, ptr_type, i32_type, i1_type};
   FunctionType *memcpy_type = context_->getFunctionType(void_type, param_types);
 
   // 获取或创建memcpy函数声明
   Function *memcpy_func =
-      module->getOrCreateFunction("memcpy.p0.p0.i64", memcpy_type);
+      module->getOrCreateFunction("memcpy.p0.p0.i32", memcpy_type);
 
   // 创建函数调用参数
   std::vector<Value *> args;
@@ -340,7 +353,7 @@ auto IRBuilder::CreateMemCpy(Value *dest, Value *src, uint64_t size,
 
   // 创建size参数的常量
   ConstantInt *size_const =
-      context_->getIntConstant(static_cast<IntegerType *>(i64_type), size);
+      context_->getIntConstant(static_cast<IntegerType *>(i32_type), size);
   args.push_back(size_const); // 拷贝大小
 
   // 创建is_violatile参数的常量

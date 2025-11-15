@@ -101,8 +101,9 @@
   - `auto CreateICmpUGE(Value* LHS, Value* RHS, const std::string& name = "") -> ICmpInst*` - 创建无符号大于等于比较指令
   - `auto CreatePHI(Type* type, const std::string& name = "") -> PHINode*` - 创建PHI节点指令
   - `auto CreateCall(Function* func, const std::vector<Value*>& args, const std::string& name = "") -> CallInst*` - 创建函数调用指令
+  - `auto CreatePtrToInt(Type* type, Value* ptr, const std::string& name = "") -> PtrToIntInst*` - 创建指针转整数指令
   - `auto CreateGEP(Type* type, Value* ptr, const std::vector<Value*>& indices, const std::string& name = "") -> GetElementPtrInst*` - 创建 GetElementPtr 指令
-  - `auto CreateMemCpy(Value* dest, Value* src, uint64_t size, bool is_violatile) -> CallInst*` - 创建内存拷贝指令。该函数需要调用LLVM内置的memcpy函数实现内存拷贝操作，其中memcpy函数的声明会在第一次调用时自动创建并添加到Module中；由于不考虑优化，该函数参数只有四个：目的、源、大小、是否易失；声明时需要编辑函数名为memcpy.p0.p0.i64以符合LLVM命名规范。
+  - `auto CreateMemCpy(Value* dest, Value* src, uint64_t size, bool is_violatile) -> CallInst*` - 创建内存拷贝指令。该函数需要调用LLVM内置的memcpy函数实现内存拷贝操作，其中memcpy函数的声明会在第一次调用时自动创建并添加到Module中；由于不考虑优化，该函数参数只有四个：目的、源、大小、是否易失；声明时需要编辑函数名为memcpy.p0.p0.i32以符合LLVM命名规范。
 
 内部隐藏逻辑：
 - `auto genLLVMReg()->std::string` - 生成唯一LLVM寄存器名称的辅助函数，在内部static的存储一个计数器，每次调用自增并返回类似于"%1"、"%2"的名称字符串。
