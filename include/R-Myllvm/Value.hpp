@@ -335,6 +335,22 @@ public:
   auto print() const -> std::string override;
 };
 
+// 指针转整数指令
+class PtrToIntInst : public Instruction {
+private:
+  std::string name_; // 指令对应 Value（结果寄存器）的名称
+  Type *type_;       // 结果类型（整数类型）
+  Value *ptr_;       // 指针操作数
+
+public:
+  PtrToIntInst(const std::string &name, Type *type, Value *ptr);
+
+  auto getPtr() const -> Value *;
+  auto getType() const -> Type * override;
+  auto getName() const -> std::string override;
+  auto print() const -> std::string override;
+};
+
 // 地址计算指令
 class GetElementPtrInst : public Instruction {
 private:

@@ -546,6 +546,34 @@ auto CallInst::print() const -> std::string {
   return result;
 }
 
+// PtrToIntInst 类实现
+PtrToIntInst::PtrToIntInst(const std::string &name, Type *type, Value *ptr)
+    : name_(name), type_(type), ptr_(ptr) {
+  // 检查操作数类型是否为指针
+  if (!ptr->getType()->isPointerTy()) {
+    throw std::runtime_error(
+        "PtrToIntInst pointer operand must be of pointer type");
+  }
+  // 检查结果类型是否为整数类型
+  auto *result_int_type = dynamic_cast<IntegerType *>(type);
+  if (!result_int_type) {
+    throw std::runtime_error(
+        "PtrToIntInst result type must be of integer type");
+  }
+  addOperand(ptr);
+}
+
+auto PtrToIntInst::getPtr() const -> Value * { return ptr_; }
+
+auto PtrToIntInst::getType() const -> Type * { return type_; }
+
+auto PtrToIntInst::getName() const -> std::string { return "%" + name_; }
+
+auto PtrToIntInst::print() const -> std::string {
+  return getName() + " = ptrtoint ptr " + ptr_->getName() + " to " +
+         type_->print();
+}
+
 // GetElementPtrInst 类实现：检查不够完整但够用。
 GetElementPtrInst::GetElementPtrInst(const std::string &name, Type *type,
                                      Type *base_type, Value *ptr,

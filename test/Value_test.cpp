@@ -857,6 +857,59 @@ TEST(ValueTest, GetElementPtrInstTypeCheckTest) {
       std::runtime_error);
 }
 
+// 测试指针转整数指令
+TEST(ValueTest, PtrToIntInstTest) {
+  Int32Type i32_type;
+  PointerType ptr_type;
+
+  // 使用AllocaInst创建指针
+  AllocaInst alloca_ptr("ptr", &i32_type);
+
+  PtrToIntInst ptr_to_int("result", &i32_type, &alloca_ptr);
+
+  EXPECT_EQ(ptr_to_int.getType(), &i32_type);
+  EXPECT_EQ(ptr_to_int.getName(), "%result");
+  EXPECT_EQ(ptr_to_int.getPtr(), &alloca_ptr);
+
+  // 测试操作数列表
+  const auto &operands = ptr_to_int.getOperands();
+  EXPECT_EQ(operands.size(), 1);
+  EXPECT_EQ(operands[0], &alloca_ptr);
+
+  // 测试用户列表
+  const auto &ptr_users = alloca_ptr.getUsers();
+  EXPECT_EQ(ptr_users.size(), 1);
+  EXPECT_EQ(ptr_users[0], &ptr_to_int);
+
+  // 测试打印
+  std::string print_result = ptr_to_int.print();
+  EXPECT_TRUE(print_result.find("%result") != std::string::npos);
+  EXPECT_TRUE(print_result.find("ptrtoint") != std::string::npos);
+  EXPECT_TRUE(print_result.find("%ptr") != std::string::npos);
+  EXPECT_TRUE(print_result.find("i32") != std::string::npos);
+}
+
+// 测试指针转整数指令类型检测
+TEST(ValueTest, PtrToIntInstTypeCheckTest) {
+  Int32Type i32_type;
+  Int8Type i8_type;
+  PointerType ptr_type;
+
+  // 使用AllocaInst创建指针
+  AllocaInst alloca_ptr("ptr", &i32_type);
+  ConstantInt int32_val(&i32_type, 42);
+
+  // 正常情况：指针类型的操作数和整数类型的结果
+  EXPECT_NO_THROW(PtrToIntInst("result1", &i32_type, &alloca_ptr));
+  EXPECT_NO_THROW(PtrToIntInst("result2", &i8_type, &alloca_ptr));
+
+  // 异常情况：操作数类型不是指针
+  EXPECT_THROW(PtrToIntInst("result3", &i32_type, &int32_val), std::runtime_error);
+
+  // 异常情况：结果类型不是整数
+  EXPECT_THROW(PtrToIntInst("result4", &ptr_type, &alloca_ptr), std::runtime_error);
+}
+
 // 测试基本块包含多个指令时的打印
 TEST(ValueTest, BasicBlockMultipleInstructionsTest) {
   Int32Type i32_type;

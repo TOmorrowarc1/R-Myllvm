@@ -29,6 +29,7 @@ llvm::Value (抽象基类)
   │     │     │     └── llvm::ReturnInst (返回指令)
   │     │     ├── llvm::PHINode (PHI节点)
   │     │     ├── llvm::CallInst (函数调用指令)
+  │     │     ├── llvm::PtrToIntInst (指针转整数指令)
   │     │     └── llvm::GetElementPtrInst (地址计算指令)
   │     │
   │     └── llvm::Constant (常量值)
@@ -282,7 +283,20 @@ llvm::Value (抽象基类)
 - `auto getName() const -> std::string` - 获取结果名称
 - `auto print() const -> std::string` - 打印指令信息
 
-#### 4.11 地址计算指令
+#### 4.11 指针转整数指令
+成员：
+- `std::string name_` - 指令对应 Value（结果寄存器）的名称
+- `Type* type_` - 结果类型（整数类型）
+- `Value* ptr_` - 指针操作数
+
+接口：
+- `PtrToIntInst(const std::string& name, Type* type, Value* ptr)` - 构造函数，要求操作数类型为指针，结果类型为整数类型。
+- `auto getPtr() const -> Value*` - 获取指针操作数
+- `auto getType() const -> Type*` - 获取结果类型
+- `auto getName() const -> std::string` - 获取结果名称
+- `auto print() const -> std::string` - 打印指令信息
+
+#### 4.12 地址计算指令
 成员：
 - `std::string name_` - 指令对应 Value（结果寄存器）的名称
 - `Type* type_` - 结果类型（指针类型）
