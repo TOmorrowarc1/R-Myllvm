@@ -348,7 +348,7 @@ auto IRBuilder::CreateMemCpy(Value *dest, Value *src, Value *size,
 
   // 获取或创建memcpy函数声明
   Function *memcpy_func =
-      module->getOrCreateFunction("memcpy.p0.p0.i32", memcpy_type);
+      module->getOrCreateFunction("llvm.memcpy.p0.p0.i32", memcpy_type);
 
   // 创建函数调用参数
   std::vector<Value *> args;
