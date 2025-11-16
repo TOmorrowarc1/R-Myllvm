@@ -33,11 +33,13 @@ auto Module::getOrCreateFunction(const std::string &name,
   return result;
 }
 
-auto Module::createFunction(const std::string &name, FunctionType *func_type) -> Function * {
+auto Module::createFunction(const std::string &name, FunctionType *func_type)
+    -> Function * {
   auto it = functions_.find(name);
   if (it != functions_.end()) {
     // 函数已存在，报错
-    throw std::runtime_error("Function '" + name + "' already exists in module");
+    throw std::runtime_error("Function '" + name +
+                             "' already exists in module");
   }
 
   auto new_function = std::make_unique<Function>(name, func_type, this);
@@ -75,11 +77,13 @@ auto Module::getOrCreateGlobalVariable(const std::string &name, Type *var_type,
 }
 
 auto Module::createGlobalVariable(const std::string &name, Type *var_type,
-                                  bool is_constant, Constant *init_value) -> GlobalVariable * {
+                                  bool is_constant, Constant *init_value)
+    -> GlobalVariable * {
   auto it = global_vars_.find(name);
   if (it != global_vars_.end()) {
     // 全局变量已存在，报错
-    throw std::runtime_error("Global variable '" + name + "' already exists in module");
+    throw std::runtime_error("Global variable '" + name +
+                             "' already exists in module");
   }
 
   auto new_global_var =
@@ -104,9 +108,16 @@ auto Module::print() -> std::string {
     result += "\n";
   }
 
-  // 打印函数
+  // 打印函数，先 declare（外部链接）再 define（单元内联）
   for (const auto &[name, function] : functions_) {
-    result += function->print() + "\n\n";
+    if (!function->isDefined()) {
+      result += function->print() + "\n\n";
+    }
+  }
+  for (const auto &[name, function] : functions_) {
+    if (function->isDefined()) {
+      result += function->print() + "\n\n";
+    }
   }
 
   return result;

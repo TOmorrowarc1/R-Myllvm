@@ -141,14 +141,17 @@ auto Function::print() const -> std::string {
       result += ", ";
     }
   }
-
-  result += ") {\n";
-
-  for (const auto &bb : basic_blocks_) {
-    result += bb->print() + "\n";
+  result += ") ";
+  if (is_defined_) {
+    result += "{\n";
+    for (const auto &bb : basic_blocks_) {
+      result += bb->print() + "\n";
+    }
+    result += "}";
+  } else {
+    result += ")\n";
   }
 
-  result += "}";
   return result;
 }
 
