@@ -111,12 +111,12 @@ auto Module::print() -> std::string {
   // 打印函数，先 declare（外部链接）再 define（单元内联）
   for (const auto &[name, function] : functions_) {
     if (!function->isDefined()) {
-      result += function->print() + "\n\n";
+      result += function->print() + "\n";
     }
   }
   for (const auto &[name, function] : functions_) {
     if (function->isDefined()) {
-      result += function->print() + "\n\n";
+      result += function->print() + "\n";
     }
   }
 
