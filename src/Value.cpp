@@ -133,7 +133,7 @@ auto Function::print() const -> std::string {
   const auto &param_types = func_type_->getParamTypes();
   for (size_t i = 0; i < param_types.size(); ++i) {
     if (i < arguments_.size()) {
-      result += param_types[i]->print() + " %" + arguments_[i]->getName();
+      result += param_types[i]->print() + " " + arguments_[i]->getName();
     } else {
       result += param_types[i]->print();
     }
@@ -786,7 +786,7 @@ Argument::Argument(const std::string &name, Type *type, Function *parent)
 
 auto Argument::getType() const -> Type * { return type_; }
 
-auto Argument::getName() const -> std::string { return name_; }
+auto Argument::getName() const -> std::string { return "%" + name_; }
 
 auto Argument::getParent() const -> Function * { return parent_; }
 
