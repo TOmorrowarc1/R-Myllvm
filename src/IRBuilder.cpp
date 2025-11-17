@@ -6,7 +6,7 @@ namespace llvm {
 
 auto IRBuilder::genLLVMReg() -> std::string {
   static uint64_t counter = 0;
-  return std::to_string(++counter);
+  return "tmp." + std::to_string(counter++);
 }
 
 auto IRBuilder::CreateBinaryOp(Value *LHS, Value *RHS, const std::string &name,
@@ -343,7 +343,8 @@ auto IRBuilder::CreateMemCpy(Value *dest, Value *src, Value *size,
   Type *ptr_type = context_->getPointerType();
   Type *i1_type = context_->getInt1Ty();
 
-  std::vector<Type *> param_types = {ptr_type, ptr_type, context_->getInt32Ty(), i1_type};
+  std::vector<Type *> param_types = {ptr_type, ptr_type, context_->getInt32Ty(),
+                                     i1_type};
   FunctionType *memcpy_type = context_->getFunctionType(void_type, param_types);
 
   // 获取或创建memcpy函数声明
