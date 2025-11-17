@@ -664,8 +664,8 @@ auto ConstantInt::print() const -> std::string {
 }
 
 // ConstantStruct 类实现
-ConstantStruct::ConstantStruct(
-    StructType *type, std::vector<std::unique_ptr<Constant>> &&elements)
+ConstantStruct::ConstantStruct(StructType *type,
+                               std::vector<Constant *> &&elements)
     : type_(type), elements_(std::move(elements)) {
   // 检查字段数量和类型是否与结构体类型内部信息一致
   const auto &struct_elements = type_->getBody();
@@ -685,12 +685,7 @@ ConstantStruct::ConstantStruct(
 auto ConstantStruct::getType() const -> StructType * { return type_; }
 
 const std::vector<Constant *> &ConstantStruct::getElements() const {
-  static std::vector<Constant *> raw_elements;
-  raw_elements.clear();
-  for (const auto &elem : elements_) {
-    raw_elements.push_back(elem.get());
-  }
-  return raw_elements;
+  return elements_;
 }
 
 auto ConstantStruct::getName() const -> std::string {
@@ -719,7 +714,7 @@ auto ConstantStruct::print() const -> std::string {
 
 // ConstantArray 类实现
 ConstantArray::ConstantArray(ArrayType *type,
-                             std::vector<std::unique_ptr<Constant>> &&elements)
+                             std::vector<Constant *> &&elements)
     : type_(type), elements_(std::move(elements)) {
   // 检查元素数量和类型是否与数组类型内部信息一致
   if (elements_.size() != type_->getNumElements()) {
@@ -739,12 +734,7 @@ ConstantArray::ConstantArray(ArrayType *type,
 auto ConstantArray::getType() const -> ArrayType * { return type_; }
 
 const std::vector<Constant *> &ConstantArray::getElements() const {
-  static std::vector<Constant *> raw_elements;
-  raw_elements.clear();
-  for (const auto &elem : elements_) {
-    raw_elements.push_back(elem.get());
-  }
-  return raw_elements;
+  return elements_;
 }
 
 auto ConstantArray::getName() const -> std::string {

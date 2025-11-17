@@ -42,8 +42,9 @@ public:
 
 class StructConstComparator {
 public:
-  auto operator()(const std::pair<StructType *, llvm::ArrayRef<Constant *>> &lhs,
-                  const std::pair<StructType *, llvm::ArrayRef<Constant *>> &rhs) const
+  auto operator()(
+      const std::pair<StructType *, llvm::ArrayRef<Constant *>> &lhs,
+      const std::pair<StructType *, llvm::ArrayRef<Constant *>> &rhs) const
       -> bool {
     if (lhs.first != rhs.first) {
       return lhs.first < rhs.first;
@@ -56,8 +57,8 @@ public:
 class ArrayConstComparator {
 public:
   auto operator()(const std::pair<ArrayType *, llvm::ArrayRef<Constant *>> &lhs,
-                  const std::pair<ArrayType *, llvm::ArrayRef<Constant *>> &rhs) const
-      -> bool {
+                  const std::pair<ArrayType *, llvm::ArrayRef<Constant *>> &rhs)
+      const -> bool {
     if (lhs.first != rhs.first) {
       return lhs.first < rhs.first;
     }
@@ -105,10 +106,12 @@ public:
   auto getIntConstant(IntegerType *type, uint32_t value) -> ConstantInt *;
 
   // 获取或创建结构体常量对象
-  auto getStructConstant(StructType *type, std::vector<std::unique_ptr<llvm::Constant>> &&values) -> ConstantStruct *;
+  auto getStructConstant(StructType *type, std::vector<Constant *> &&values)
+      -> ConstantStruct *;
 
   // 获取或创建数组常量对象
-  auto getArrayConstant(ArrayType *type, std::vector<std::unique_ptr<llvm::Constant>> &&values) -> ConstantArray *;
+  auto getArrayConstant(ArrayType *type, std::vector<Constant *> &&values)
+      -> ConstantArray *;
 
   // 获取或创建空指针常量对象
   auto getNullPtrConstant() -> ConstantPointerNull *;
@@ -139,13 +142,13 @@ private:
       int_constants_;
 
   // 存储已创建的结构体常量对象，避免重复创建，通过类型与值列表索引
-  std::map<std::pair<StructType *, ArrayRef<Constant *>>, std::unique_ptr<ConstantStruct>,
-           StructConstComparator>
+  std::map<std::pair<StructType *, ArrayRef<Constant *>>,
+           std::unique_ptr<ConstantStruct>, StructConstComparator>
       struct_constants_;
 
   // 存储已创建的数组常量对象，避免重复创建，通过类型与值列表索引
-  std::map<std::pair<ArrayType *, ArrayRef<Constant *>>, std::unique_ptr<ConstantArray>,
-           ArrayConstComparator>
+  std::map<std::pair<ArrayType *, ArrayRef<Constant *>>,
+           std::unique_ptr<ConstantArray>, ArrayConstComparator>
       array_constants_;
 
   // 空指针常量单例对象

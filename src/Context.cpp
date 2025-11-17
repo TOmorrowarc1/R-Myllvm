@@ -118,15 +118,10 @@ auto LLVMContext::getIntConstant(IntegerType *type, uint32_t value)
   return result;
 }
 
-auto LLVMContext::getStructConstant(StructType *type, std::vector<std::unique_ptr<llvm::Constant>> &&values)
+auto LLVMContext::getStructConstant(StructType *type,
+                                    std::vector<Constant *> &&values)
     -> ConstantStruct * {
-  // 创建一个临时的常量指针数组用于比较
-  std::vector<Constant *> temp_values;
-  for (const auto &value : values) {
-    temp_values.push_back(value.get());
-  }
-  
-  ArrayRef<Constant *> values_ref(temp_values);
+  ArrayRef<Constant *> values_ref(values);
   auto key = std::make_pair(type, values_ref);
   auto it = struct_constants_.find(key);
   if (it != struct_constants_.end()) {
@@ -140,15 +135,10 @@ auto LLVMContext::getStructConstant(StructType *type, std::vector<std::unique_pt
   return result;
 }
 
-auto LLVMContext::getArrayConstant(ArrayType *type, std::vector<std::unique_ptr<llvm::Constant>> &&values)
+auto LLVMContext::getArrayConstant(ArrayType *type,
+                                   std::vector<Constant *> &&values)
     -> ConstantArray * {
-  // 创建一个临时的常量指针数组用于比较
-  std::vector<Constant *> temp_values;
-  for (const auto &value : values) {
-    temp_values.push_back(value.get());
-  }
-  
-  ArrayRef<Constant *> values_ref(temp_values);
+  ArrayRef<Constant *> values_ref(values);
   auto key = std::make_pair(type, values_ref);
   auto it = array_constants_.find(key);
   if (it != array_constants_.end()) {

@@ -333,10 +333,10 @@ llvm::Value (抽象基类)
 #### 5.2 结构体常量 `llvm::ConstantStruct`
 成员：
 - `StructType* type_` - 结构体类型
-- `std::vector<std::unique_ptr<Constant>> elements_` - 结构体字段常量列表
+- `std::vector<Constant*> elements_` - 结构体字段常量列表
 
 接口：
-- `ConstantStruct(StructType* type, std::vector<std::unique_ptr<Constant>>&& elements)` - 构造函数，要求字段数量和类型与结构体类型内部信息一致，若不相符则报错。
+- `ConstantStruct(StructType* type, std::vector<Constant*>&& elements)` - 构造函数，要求字段数量和类型与结构体类型内部信息一致，若不相符则报错。
 - `auto getType() const -> StructType*` - 获取结构体类型
 - `const std::vector<Constant*>& getElements() const` - 获取字段常量
 - `auto getName() const -> std::string` - 获取结构体常量，指只打印值而不打印类型信息，具体实现为打印`{}`内的字段常量列表，即依次调用成员print()。
@@ -345,10 +345,10 @@ llvm::Value (抽象基类)
 #### 5.3 数组常量 `llvm::ConstantArray`
 成员：
 - `ArrayType* type_` - 数组类型
-- `std::vector<std::unique_ptr<Constant>> elements_` - 数组元素常量列表
+- `std::vector<Constant*> elements_` - 数组元素常量列表
 
 接口：
-- `ConstantArray(ArrayType* type, std::vector<std::unique_ptr<Constant>>&& elements)` - 构造函数，要求元素数量和类型与数组类型内部信息一致，若不相符则报错。
+- `ConstantArray(ArrayType* type, std::vector<Constant*>&& elements)` - 构造函数，要求元素数量和类型与数组类型内部信息一致，若不相符则报错。
 - `auto getType() const -> ArrayType*` - 获取数组类型
 - `const std::vector<Constant*>& getElements() const` - 获取数组元素常量
 - `auto getName() const -> std::string` - 获取数组常量，指只打印值而不打印类型信息，具体实现为直接打印`[]`内的元素常量列表，即依次调用成员print()。

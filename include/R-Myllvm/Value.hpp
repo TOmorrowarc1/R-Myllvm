@@ -395,12 +395,11 @@ public:
 // 结构体常量
 class ConstantStruct : public Constant {
 private:
-  StructType *type_;                                // 结构体类型
-  std::vector<std::unique_ptr<Constant>> elements_; // 结构体字段常量列表
+  StructType *type_;                 // 结构体类型
+  std::vector<Constant *> elements_; // 结构体字段常量列表
 
 public:
-  ConstantStruct(StructType *type,
-                 std::vector<std::unique_ptr<Constant>> &&elements);
+  ConstantStruct(StructType *type, std::vector<Constant *> &&elements);
 
   auto getType() const -> StructType *;
   const std::vector<Constant *> &getElements() const;
@@ -411,12 +410,11 @@ public:
 // 数组常量
 class ConstantArray : public Constant {
 private:
-  ArrayType *type_;                                 // 数组类型
-  std::vector<std::unique_ptr<Constant>> elements_; // 数组元素常量列表
+  ArrayType *type_;                  // 数组类型
+  std::vector<Constant *> elements_; // 数组元素常量列表
 
 public:
-  ConstantArray(ArrayType *type,
-                std::vector<std::unique_ptr<Constant>> &&elements);
+  ConstantArray(ArrayType *type, std::vector<Constant *> &&elements);
 
   auto getType() const -> ArrayType *;
   const std::vector<Constant *> &getElements() const;
