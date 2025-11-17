@@ -72,7 +72,7 @@ auto StructType::isEqual(const Type *other_type) const -> bool {
 auto StructType::print() const -> std::string { return name_; }
 
 auto StructType::printDef() const -> std::string {
-  std::string result = "%" + name_ + " = type { ";
+  std::string result = name_ + " = type { ";
   for (size_t i = 0; i < elements_.size(); ++i) {
     result += elements_[i]->print();
     if (i < elements_.size() - 1) {

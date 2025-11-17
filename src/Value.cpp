@@ -147,9 +147,8 @@ auto Function::print() const -> std::string {
       result += bb->print() + "\n";
     }
     result += "}";
-  } else {
-    result += "\n";
   }
+  result += "\n";
 
   return result;
 }
