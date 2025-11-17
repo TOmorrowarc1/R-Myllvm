@@ -6,7 +6,7 @@ namespace llvm {
 
 auto IRBuilder::genLLVMReg() -> std::string {
   static uint64_t counter = 0;
-  return std::to_string(++counter);
+  return std::to_string(counter++);
 }
 
 auto IRBuilder::CreateBinaryOp(Value *LHS, Value *RHS, const std::string &name,
