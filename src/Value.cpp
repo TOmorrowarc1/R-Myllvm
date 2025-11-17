@@ -43,9 +43,8 @@ auto GlobalVariable::print() const -> std::string {
   } else {
     result += "global ";
   }
-  result += type_->print();
   if (initial_value_) {
-    result += " " + initial_value_->print();
+    result += initial_value_->print();
   } else {
     result += " 0";
   }
