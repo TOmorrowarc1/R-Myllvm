@@ -529,7 +529,7 @@ auto CallInst::print() const -> std::string {
   std::string result;
   std::string type_name;
 
-  if (!name_.empty() && func_type->getReturnType()) {
+  if (!name_.empty() && !dynamic_cast<VoidType *>(func_type->getReturnType())) {
     result += getName() + " = ";
     type_name = func_type->getReturnType()->print();
   } else {
