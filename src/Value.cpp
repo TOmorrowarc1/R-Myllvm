@@ -28,7 +28,7 @@ GlobalVariable::GlobalVariable(const std::string &name, Type *type,
 
 auto GlobalVariable::getType() const -> Type * { return type_; }
 
-auto GlobalVariable::getName() const -> std::string { return name_; }
+auto GlobalVariable::getName() const -> std::string { return "@" + name_; }
 
 auto GlobalVariable::getInitialValue() const -> Constant * {
   return initial_value_;
