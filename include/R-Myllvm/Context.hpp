@@ -87,6 +87,9 @@ public:
   // 获取或创建结构体类型对象
   auto getStructType(const std::string &name) -> StructType *;
 
+  // 获取所有已创建的结构体类型对象，用于 Module 打印
+  auto getAllStructTypes() -> std::vector<StructType *>;
+
   // 获取或创建数组类型对象
   auto getArrayType(Type *element_type, int32_t length) -> ArrayType *;
 

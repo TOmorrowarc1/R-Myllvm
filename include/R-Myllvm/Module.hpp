@@ -62,7 +62,7 @@ public:
   // 获取所属上下文指针
   auto getContext() -> LLVMContext *;
 
-  // 打印模块内所有函数与全局变量的信息
+  // 打印模块内所有自定义类型、函数与全局变量的信息
   auto print() -> std::string;
 };
 

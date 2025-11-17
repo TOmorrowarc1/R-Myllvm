@@ -98,7 +98,19 @@ auto Module::getContext() -> LLVMContext * { return context_; }
 auto Module::print() -> std::string {
   std::string result;
 
-  // 打印全局变量
+  // 调用 context_ 的 getAllStructTypes 方法，获取所有结构体类型列表
+  auto struct_types = context_->getAllStructTypes();
+  // 遍历调用每个 StructType 的 printDef 方法，拼接结果字符串
+  for (auto *struct_type : struct_types) {
+    result += struct_type->printDef() + "\n";
+  }
+
+  // 如果有结构体类型，添加一个空行分隔
+  if (!struct_types.empty() && (!global_vars_.empty() || !functions_.empty())) {
+    result += "\n";
+  }
+
+  // 遍历 global_vars_，调用每个 GlobalVariable 的 print 方法，拼接结果字符串
   for (const auto &[name, global_var] : global_vars_) {
     result += global_var->print() + "\n";
   }
@@ -108,16 +120,9 @@ auto Module::print() -> std::string {
     result += "\n";
   }
 
-  // 打印函数，先 declare（外部链接）再 define（单元内联）
+  // 遍历 functions_，调用每个 Function 的 print 方法，拼接结果字符串
   for (const auto &[name, function] : functions_) {
-    if (!function->isDefined()) {
-      result += function->print() + "\n";
-    }
-  }
-  for (const auto &[name, function] : functions_) {
-    if (function->isDefined()) {
-      result += function->print() + "\n";
-    }
+    result += function->print() + "\n";
   }
 
   return result;

@@ -59,6 +59,14 @@ auto LLVMContext::getStructType(const std::string &name) -> StructType * {
   return result;
 }
 
+auto LLVMContext::getAllStructTypes() -> std::vector<StructType *> {
+  std::vector<StructType *> result;
+  for (const auto &[name, struct_type] : struct_types_) {
+    result.push_back(struct_type.get());
+  }
+  return result;
+}
+
 auto LLVMContext::getArrayType(Type *element_type, int32_t length)
     -> ArrayType * {
   auto key = std::make_pair(element_type, length);

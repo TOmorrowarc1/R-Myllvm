@@ -26,6 +26,7 @@
 - `auto getInt8Ty() -> Int8Type*` - 获取或创建8位整数类型对象。
 - `auto getInt1Ty() -> Int1Type*` - 获取或创建1位整数类型对象。
 - `auto getStructType(const std::string& name)-> StructType*` - 获取或创建结构体类型对象。
+- `auto getAllStructTypes() -> std::vector<StructType*>` - 获取所有已创建的结构体类型对象，用于 Module 打印。
 - `auto getArrayType(Type* element_type, int32_t length)-> ArrayType*` - 获取或创建数组类型对象。
 - `auto getFunctionType(Type* return_type, const vector<Type*>& param_types) -> FunctionType*` - 获取或创建函数类型对象。
 - `auto getPointerType() -> PointerType*` - 获取指针类型对象。
@@ -55,7 +56,8 @@
   - `void getOrCreateGlobalVariable(const std::string& name, Type* var_type, bool is_constant, llvm::Constant* init_value)` - 获取或创建全局变量对象。
   - `void addGlobalVariable(const std::string& name, std::unque_ptr<GlobalVariable>&& global_var)` - 向模块中添加全局变量对象。
   - `auto getContext() -> LLVMContext*` - 获取所属上下文指针。
-  - `auto print() -> std::string` - 打印模块内所有函数与全局变量的信息，实现方式如下：
+  - `auto print() -> std::string` - 打印模块内所有自定义类型、函数与全局变量的信息，实现方式如下：
+    - 调用 context_ 的 getAllStructTypes 方法，获取所有结构体类型列表， 遍历调用每个 StructType 的 printDef 方法，拼接结果字符串。
     - 遍历 global_vars_，调用每个 GlobalVariable 的 print 方法，拼接结果字符串。
     - 遍历 functions_，调用每个 Function 的 print 方法，拼接结果字符串。
     - 返回最终拼接的字符串。
