@@ -102,9 +102,8 @@ auto ArrayType::isEqual(const Type *other_type) const -> bool {
 }
 
 auto ArrayType::print() const -> std::string {
-  std::string result = "[";
-  result += element_type_->print();
-  result += " x " + std::to_string(num_elements_) + "]";
+  std::string result = "[" + std::to_string(num_elements_) + " x " +
+                       element_type_->print() + "]";
   return result;
 }
 
