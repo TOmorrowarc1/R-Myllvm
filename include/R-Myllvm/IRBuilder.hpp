@@ -117,6 +117,8 @@ public:
                   const std::string &name = "") -> CallInst *;
   auto CreatePtrToInt(Type *type, Value *ptr, const std::string &name = "")
       -> PtrToIntInst *;
+  auto CreateZExt(Type *type, Value *val, const std::string &name = "")
+      -> ZExtInst *;
   auto CreateGEP(Type *type, Value *ptr, const std::vector<Value *> &indices,
                  const std::string &name = "") -> GetElementPtrInst *;
   auto CreateMemCpy(Value *dest, Value *src, Value *size, bool is_violatile)

@@ -299,6 +299,19 @@ auto IRBuilder::CreatePtrToInt(Type *type, Value *ptr, const std::string &name)
   return result;
 }
 
+auto IRBuilder::CreateZExt(Type *type, Value *val, const std::string &name)
+    -> ZExtInst * {
+  if (!insert_block_) {
+    return nullptr;
+  }
+
+  std::string actual_name = name.empty() ? genLLVMReg() : name;
+  auto zext = std::make_unique<ZExtInst>(actual_name, type, val);
+  auto result = zext.get();
+  insert_block_->addInstruction(std::move(zext));
+  return result;
+}
+
 auto IRBuilder::CreateGEP(Type *type, Value *ptr,
                           const std::vector<Value *> &indices,
                           const std::string &name) -> GetElementPtrInst * {

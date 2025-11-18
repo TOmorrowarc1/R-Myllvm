@@ -351,6 +351,22 @@ public:
   auto print() const -> std::string override;
 };
 
+// 零扩展指令
+class ZExtInst : public Instruction {
+private:
+  std::string name_; // 指令对应 Value（结果寄存器）的名称
+  Type *type_;       // 结果类型（较大整数类型）
+  Value *value_;     // 被扩充的整数操作数
+
+public:
+  ZExtInst(const std::string &name, Type *type, Value *value);
+
+  auto getValue() const -> Value *;
+  auto getType() const -> Type * override;
+  auto getName() const -> std::string override;
+  auto print() const -> std::string override;
+};
+
 // 地址计算指令
 class GetElementPtrInst : public Instruction {
 private:

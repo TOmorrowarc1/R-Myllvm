@@ -296,6 +296,19 @@ llvm::Value (抽象基类)
 - `auto getName() const -> std::string` - 获取结果名称
 - `auto print() const -> std::string` - 打印指令信息
 
+#### 4.12 零扩展指令
+成员：
+- `std::string name_` - 指令对应 Value（结果寄存器）的名称
+- `Type* type_` - 结果类型（较大整数类型）
+- `Value* value_` - 被扩充的整数操作数
+  
+接口：
+- `ZExtInst(const std::string& name, Type* type, Value* value)` - 构造函数，要求操作数和结果类型均为整数类型，且结果类型位数大于操作数类型位数。（该项目中限定为i1、i8、i32之间的转化）
+- `auto getValue() const -> Value*` - 获取被扩充的整数操作数
+- `auto getType() const -> Type*` - 获取结果类型
+- `auto getName() const -> std::string` - 获取结果名称
+- `auto print() const -> std::string` - 打印指令信息
+
 #### 4.12 地址计算指令
 成员：
 - `std::string name_` - 指令对应 Value（结果寄存器）的名称

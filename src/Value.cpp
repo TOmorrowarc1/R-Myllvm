@@ -575,6 +575,52 @@ auto PtrToIntInst::print() const -> std::string {
          type_->print();
 }
 
+// ZExtInst 类实现
+ZExtInst::ZExtInst(const std::string &name, Type *type, Value *value)
+    : name_(name), type_(type), value_(value) {
+  // 检查操作数和结果类型是否均为整数类型
+  auto *value_int_type = dynamic_cast<IntegerType *>(value->getType());
+  auto *result_int_type = dynamic_cast<IntegerType *>(type);
+  if (!value_int_type || !result_int_type) {
+    throw std::runtime_error(
+        "ZExtInst operand and result types must be of integer type");
+  }
+
+  // 检查结果类型位数是否大于操作数类型位数
+  auto getBitWidth = [](Type *t) -> int {
+    if (dynamic_cast<Int32Type *>(t)) {
+      return 32;
+    }
+    if (dynamic_cast<Int8Type *>(t)) {
+      return 8;
+    }
+    if (dynamic_cast<Int1Type *>(t)) {
+      return 1;
+    }
+    return 0;
+  };
+
+  int value_bitwidth = getBitWidth(value->getType());
+  int result_bitwidth = getBitWidth(type);
+
+  if (result_bitwidth <= value_bitwidth) {
+    throw std::runtime_error("ZExtInst result must be longer than operand");
+  }
+
+  addOperand(value);
+}
+
+auto ZExtInst::getValue() const -> Value * { return value_; }
+
+auto ZExtInst::getType() const -> Type * { return type_; }
+
+auto ZExtInst::getName() const -> std::string { return "%" + name_; }
+
+auto ZExtInst::print() const -> std::string {
+  return getName() + " = zext " + value_->getType()->print() + " " +
+         value_->getName() + " to " + type_->print();
+}
+
 // GetElementPtrInst 类实现：检查不够完整但够用。
 GetElementPtrInst::GetElementPtrInst(const std::string &name, Type *type,
                                      Type *base_type, Value *ptr,
