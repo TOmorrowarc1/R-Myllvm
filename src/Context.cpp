@@ -93,7 +93,8 @@ auto LLVMContext::getFunctionType(Type *return_type,
 
   auto type = std::make_unique<FunctionType>(return_type, param_types);
   auto *result = type.get();
-  auto store_key = std::make_pair(return_type, result->getParamTypes());
+  ArrayRef<Type *> store_param_ref(result->getParamTypes());
+  auto store_key = std::make_pair(return_type, store_param_ref);
   function_types_[store_key] = std::move(type);
   return result;
 }
@@ -131,7 +132,8 @@ auto LLVMContext::getStructConstant(StructType *type,
 
   auto constant = std::make_unique<ConstantStruct>(type, std::move(values));
   auto *result = constant.get();
-  auto store_key = std::make_pair(type, result->getElements());
+  ArrayRef<Constant *> store_values_ref(result->getElements());
+  auto store_key = std::make_pair(type, store_values_ref);
   struct_constants_[store_key] = std::move(constant);
   return result;
 }
@@ -148,7 +150,8 @@ auto LLVMContext::getArrayConstant(ArrayType *type,
 
   auto constant = std::make_unique<ConstantArray>(type, std::move(values));
   auto *result = constant.get();
-  auto store_key = std::make_pair(type, result->getElements());
+  ArrayRef<Constant *> store_values_ref(result->getElements());
+  auto store_key = std::make_pair(type, store_values_ref);
   array_constants_[store_key] = std::move(constant);
   return result;
 }
