@@ -158,6 +158,12 @@ BasicBlock::BasicBlock(const std::string &name, Function *parent)
     : name_(name), parent_(parent) {}
 
 void BasicBlock::addInstruction(std::unique_ptr<Instruction> &&inst) {
+  if (isTerminated()) {
+    auto temp_end = std::move(instructions_.back());
+    instructions_.pop_back();
+    instructions_.push_back(std::move(inst));
+    instructions_.push_back(std::move(temp_end));
+  }
   instructions_.push_back(std::move(inst));
 }
 
