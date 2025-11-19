@@ -163,8 +163,9 @@ void BasicBlock::addInstruction(std::unique_ptr<Instruction> &&inst) {
     instructions_.pop_back();
     instructions_.push_back(std::move(inst));
     instructions_.push_back(std::move(temp_end));
+  } else {
+    instructions_.push_back(std::move(inst));
   }
-  instructions_.push_back(std::move(inst));
 }
 
 const std::vector<Instruction *> BasicBlock::getInstructions() const {
