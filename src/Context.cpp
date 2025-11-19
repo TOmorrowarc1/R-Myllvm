@@ -85,15 +85,16 @@ auto LLVMContext::getFunctionType(Type *return_type,
                                   const std::vector<Type *> &param_types)
     -> FunctionType * {
   ArrayRef<Type *> param_types_ref(param_types);
-  auto key = std::make_pair(return_type, param_types_ref);
-  auto it = function_types_.find(key);
+  auto find_key = std::make_pair(return_type, param_types_ref);
+  auto it = function_types_.find(find_key);
   if (it != function_types_.end()) {
     return it->second.get();
   }
 
   auto type = std::make_unique<FunctionType>(return_type, param_types);
   auto *result = type.get();
-  function_types_[key] = std::move(type);
+  auto store_key = std::make_pair(return_type, result->getParamTypes());
+  function_types_[store_key] = std::move(type);
   return result;
 }
 
@@ -122,16 +123,16 @@ auto LLVMContext::getStructConstant(StructType *type,
                                     std::vector<Constant *> &&values)
     -> ConstantStruct * {
   ArrayRef<Constant *> values_ref(values);
-  auto key = std::make_pair(type, values_ref);
-  auto it = struct_constants_.find(key);
+  auto find_key = std::make_pair(type, values_ref);
+  auto it = struct_constants_.find(find_key);
   if (it != struct_constants_.end()) {
     return it->second.get();
   }
 
-  // 直接使用移动语义，不需要复制
   auto constant = std::make_unique<ConstantStruct>(type, std::move(values));
   auto *result = constant.get();
-  struct_constants_[key] = std::move(constant);
+  auto store_key = std::make_pair(type, result->getElements());
+  struct_constants_[store_key] = std::move(constant);
   return result;
 }
 
@@ -139,16 +140,16 @@ auto LLVMContext::getArrayConstant(ArrayType *type,
                                    std::vector<Constant *> &&values)
     -> ConstantArray * {
   ArrayRef<Constant *> values_ref(values);
-  auto key = std::make_pair(type, values_ref);
-  auto it = array_constants_.find(key);
+  auto find_key = std::make_pair(type, values_ref);
+  auto it = array_constants_.find(find_key);
   if (it != array_constants_.end()) {
     return it->second.get();
   }
 
-  // 直接使用移动语义，不需要复制
   auto constant = std::make_unique<ConstantArray>(type, std::move(values));
   auto *result = constant.get();
-  array_constants_[key] = std::move(constant);
+  auto store_key = std::make_pair(type, result->getElements());
+  array_constants_[store_key] = std::move(constant);
   return result;
 }
 
